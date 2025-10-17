@@ -5,8 +5,8 @@ declare(strict_types=1);
  * Classe Erreur : Classe permettant de générer la réponse du serveur en cas d'erreur détectée
  * Utilise la classe technique Journal pour journaliser les erreurs
  * @Author : Guy Verghote
- * @Version : 2025.3
- * @Date : 23/07/2025
+ * @Version : 2025.4
+ * @Date : 09/09/2025
  * Renommage de la méthode traiterErreur en traiterReponse
  * réécriture methode getErreurHttp
  * remplacement du caractère # par ~ pour la détection des erreurs déclenchées par un trigger
@@ -39,7 +39,7 @@ class Erreur
             }
         } elseif ($type === 'system') {
             Journal::enregistrer($message, 'erreur');
-            $$message = "Une erreur est survenue, veuillez consulter le journal des erreurs pour en savoir plus";
+            $message = "Une erreur est survenue, veuillez consulter le journal des erreurs pour en savoir plus";
         }
 
         $lesErreurs[$type] = $message;
@@ -62,8 +62,8 @@ class Erreur
     {
         // Si le type n'est pas précisé, on tente de le déduire du message
         if ($type === null) {
-            // si le message provient d'un déclencheur il doit contenir un # et dans ce cas, il peut être affiché
-            $messageDeclencheur = strstr($message, '#');
+            // si le message provient d'un déclencheur il doit contenir un ~ et dans ce cas, il peut être affiché
+            $messageDeclencheur = strstr($message, '~ ');
             if ($messageDeclencheur) {
                 $type = 'global';
                 $message = substr($messageDeclencheur, 1);
@@ -71,12 +71,12 @@ class Erreur
                 // Si le message ne provient pas d'un déclencheur, on enregistre l'erreur dans le journal
                 Journal::enregistrer($message, 'erreur');
                 $type = 'system';
-                $$message = "Une erreur est survenue, veuillez consulter le journal des erreurs pour en savoir plus";
+                $message = "Une erreur est survenue, veuillez consulter le journal des erreurs pour en savoir plus";
             }
         } elseif ($type === 'system') {
             // Si le type est 'system', on enregistre l'erreur dans le journal
             Journal::enregistrer($message, 'erreur');
-            $$message = "Une erreur est survenue, veuillez consulter le journal des erreurs pour en savoir plus";
+            $message = "Une erreur est survenue, veuillez consulter le journal des erreurs pour en savoir plus";
         }
 
         // Démarrage de la session si elle n'est pas déjà démarrée

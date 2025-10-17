@@ -6,7 +6,7 @@ $lesLignes = Categorie::getAll();
 $data = json_encode($lesLignes);
 
 $head =<<<HTML
-<script src="/composant/html2pdf.bundle.min.js"></script>
+<script src="/composant/html2pdf/html2pdf.bundle.min.js"></script>
 <script>
     const lesCategories = $data;
 </script>
