@@ -5,7 +5,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/include/autoload.php';
 // chargement des données utilisées par l'interface
 $titre = "Ajout d'un classement";
 // Récupération des paramètres du téléversement
-$lesParametres = json_encode(Classement::getConfig());
+$lesParametres = json_encode(Document::getConfig());
 
 $head =<<<HTML
     <script>

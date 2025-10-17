@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 // -----------------------------------------------------------------------------------
 // Import des fonctions nécessaires
@@ -69,7 +69,7 @@ function modifierColonne(colonne, input, id) {
     appelAjax({
         url: '/ajax/modifiercolonne.php',
         data: {
-            table: 'classement',
+            table: 'document',
             colonne: colonne,
             valeur: input.value,
             id: id
@@ -87,10 +87,10 @@ function modifierColonne(colonne, input, id) {
 // -----------------------------------------------------------------------------------
 
 fichier.accept = lesParametres.accept;
-nb.innerText = lesClassements.length;
+nb.innerText = lesDocuments.length;
 
 // afficher le tableau des classements
-for (const element of lesClassements) {
+for (const element of lesDocuments) {
     let id = element.id;
     let tr = lesLignes.insertRow();
     tr.style.verticalAlign = 'middle';
@@ -131,7 +131,7 @@ for (const element of lesClassements) {
         appelAjax({
             url: '/ajax/supprimer.php',
             data: {
-                table: 'classement',
+                table: 'document',
                 id: id
             },
             success: () => tr.remove()
@@ -181,5 +181,44 @@ for (const element of lesClassements) {
     const td = tr.insertCell();
     td.style.textAlign = 'right';
     td.style.paddingRight = '10px';
-    td.innerText = element.nbDemande;
+    td.innerText = element.type;
+
+// mapping type -> conteneur tiroir
+    function getContainerForType(type) {
+        const t = (type||'').toLowerCase().trim();
+        if (t === '4saisons' || t === '4 saisons') return document.getElementById('document4Saisons');
+        if (t === 'club' || t === 'administratif') return document.getElementById('documentClub');
+        if (t === 'technique' || t === 'public') return document.getElementById('documentPublic');
+        if (t === 'general' || t === 'membre') return document.getElementById('documentMembre');
+        return null;
+    }
+
+// créer le lien d'affichage (comme ton snippet)
+    function makeAfficherLien(id) {
+        const a = document.createElement('a');
+        a.href = "/afficherclassement.php?id=" + id;
+        a.target = 'pdf';
+        a.innerText = '📄';
+        return a;
+    }
+
+// exemple : insérer un document nouvellement ajouté dans le tiroir correct
+    function insererDocumentDansTiroir(doc) {
+        // doc doit contenir au moins id,titre,type,fichier,...
+        const container = getContainerForType(doc.type);
+        if (!container) return;
+        // crée un <a> similaire à ton snippet ; tu peux aussi ajouter le texte/titre
+        const a = makeAfficherLien(doc.id);
+        // par ex. ajouter le titre à côté
+        const label = document.createElement('span');
+        label.className = 'ms-1';
+        label.textContent = ' ' + doc.titre;
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(a);
+        wrapper.appendChild(label);
+
+        // insérer en tête (nouveau d'abord)
+        container.insertBefore(wrapper, container.firstChild);
+    }
 }
+

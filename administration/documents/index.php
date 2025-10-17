@@ -3,15 +3,14 @@
 require $_SERVER['DOCUMENT_ROOT'] . '/include/autoload.php';
 
 // chargement des données utilisées par l'interface
-$titre = "Gestions des classements";
+$titre = "Gestions des documents";
 // Récupération des paramètres du téléversement
-$lesParametres = json_encode(Classement::getConfig());
-
-$lesClassements= json_encode(Classement::getAll());
+$lesParametres = json_encode(Document::getConfig());
+$lesDocuments= json_encode(Document::getAll());
 
 $head = <<<HTML
     <script>
-        let lesClassements= $lesClassements;
+        let lesDocuments= $lesDocuments;
         let lesParametres = $lesParametres;
     </script>
 HTML;

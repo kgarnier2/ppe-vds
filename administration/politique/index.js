@@ -41,20 +41,19 @@ tinymce.init({
     license_key: 'gpl',
     selector: '#contenu',
     menubar: false,
-    plugins: 'link lists table  code',
+    plugins: 'link lists table  code autoresize',
     toolbar: [
         'undo redo | styles | bold italic underline | forecolor backcolor | fontsizeselect | link | bullist numlist outdent indent| table | code'
     ],
     fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
-    height : 400,
+    autoresize_min_height: 200,
+    autoresize_max_height: 600,
     setup: function (editor) {
-        editor.on('init', function () {
-            editor.setContent(data);
-        });
         editor.on('change', function () {
             contenu.value = editor.getContent();
         });
-    },
-
+    }
 });
 
+// alimentation de l'interface
+contenu.value = data;
