@@ -1,0 +1,44 @@
+<div class="etape" style="margin-top:2rem; max-width:720px;">
+    <h5>Ajouter un document</h5>
+    <form id="formAjoutDocument" enctype="multipart/form-data" method="post" novalidate>
+        <div class="mb-3">
+            <label for="titreDocument" class="obligatoire">Titre du document</label>
+            <input type="text" id="titreDocument" name="titre" class="form-control" required minlength="3" maxlength="200">
+        </div>
+
+        <div class="mb-3">
+            <label for="typeDocument" class="obligatoire">Catégorie</label>
+            <select id="typeDocument" name="type" class="form-select" required>
+                <option value="">-- Sélectionnez --</option>
+                <option value="4saisons">4 saisons</option>
+                <option value="Club">Club</option>
+                <option value="Public">Public</option>
+                <option value="Membre">Membre</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="dateDocument" class="obligatoire">Date</label>
+            <input type="date" id="dateDocument" name="date" class="form-control" required value="">
+        </div>
+
+        <div class="mb-3">
+            <label for="descriptionDocument">Description (optionnel)</label>
+            <textarea id="descriptionDocument" name="description" class="form-control" rows="3" maxlength="500"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="obligatoire">Fichier</label>
+            <div class="d-flex align-items-center gap-2">
+                <button id="btnChoisirFichier" type="button" class="btn btn-outline-secondary btn-sm">📁 Choisir un fichier</button>
+                <span id="nomFichier" class="text-muted">Aucun fichier sélectionné</span>
+            </div>
+            <input type="file" id="fichierDocument" name="fichier" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt" style="display:none" required>
+        </div>
+
+        <div class="mb-3">
+            <button id="btnAjouter" type="submit" class="btn btn-primary">Ajouter le document</button>
+            <span id="msgAjoutDocument" class="ms-3"></span>
+        </div>
+    </form>
+</div>

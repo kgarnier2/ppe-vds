@@ -1,0 +1,43 @@
+30/05/2025 11:08:01	insert into classement set date = :date, titre = :titre, fichier = :fichier : SQLSTATE[45000]: <<Unknown error>>: 1644 L'URI du fichier PDF n'est pas valide :la bibliotheque fonction.js.pdf	/ajax/ajouter.php	::1
+26/09/2025 13:16:36	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:16:38	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:16:41	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.page' n'existe pas	/4saisons/index.php	::1
+26/09/2025 13:16:42	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:16:44	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:16:59	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:16:59	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:16:59	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:17:26	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:17:34	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:17:35	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:18:09	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.epreuve' n'existe pas	/index.php	::1
+26/09/2025 13:27:04	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:42:22	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:42:23	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:42:23	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:42:23	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:42:29	Erreur SQL : SQLSTATE[42S02]: Base table or view not found: 1146 La table 'ppe.classement' n'existe pas	/index.php	::1
+26/09/2025 13:43:26	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:43:27	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:43:43	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:43:47	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:43:48	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:21	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:22	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:22	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:22	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:22	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:22	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:23	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:23	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:23	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:23	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:23	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:58	Le fichier structure.json est invalide.	/index.php	::1
+26/09/2025 13:46:58	Le fichier structure.json est invalide.	/index.php	::1
+10/10/2025 13:23:17	insert into classement set date = :date, titre = :titre : SQLSTATE[HY000]: General error: 1364 Field 'fichier' doesn't have a default value	/ajax/ajouter.php	::1
+10/10/2025 13:54:02	Erreur SQL : SQLSTATE[42S22]: Column not found: 1054 Champ 'description' inconnu dans field list	/administration/documents/index.php	::1
+10/10/2025 16:22:36	Erreur SQL : SQLSTATE[42S22]: Column not found: 1054 Champ 'type' inconnu dans where clause	/club/index.php	::1
+10/10/2025 16:22:41	Erreur SQL : SQLSTATE[42S22]: Column not found: 1054 Champ 'type' inconnu dans where clause	/club/index.php	::1
+06/11/2025 19:10:33	Accès à la base de données impossible :  No connection could be made because the target machine actively refused it	/index.php	::1
+06/11/2025 19:10:41	Accès à la base de données impossible :  No connection could be made because the target machine actively refused it	/index.php	::1
