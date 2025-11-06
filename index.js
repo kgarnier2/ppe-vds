@@ -1,5 +1,6 @@
 "use strict";
 
+
 // -----------------------------------------------------------------------------------
 // Import des fonctions nécessaires
 // -----------------------------------------------------------------------------------
@@ -274,17 +275,22 @@ function getContainerForType(type) {
 function insererDocumentSurAccueil(doc) {
     const container = getContainerForType(doc.type);
     if (!container) return;
+    
     const a = document.createElement('a');
     a.className = 'lien';
-    // preferer doc.url si présent, sinon fallback sur /uploads/ + fichier
-    a.href = doc.url || ('/uploads/' + (doc.fichier || ''));
+    
+    a.href = "/afficherdocument.php?id=" + doc.id;
+    
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.textContent = doc.titre || 'Document';
+    
     const wrapper = document.createElement('div');
     wrapper.appendChild(a);
-    // insérer en tête (les plus récents en premier)
     container.insertBefore(wrapper, container.firstChild);
+    
+    // FORCER l'affichage du nouveau lien
+    console.log('✅ NOUVEAU LIEN GÉNÉRÉ:', a.href);
 }
 
 // parcours si la variable PHP a été injectée

@@ -201,24 +201,4 @@ for (const element of lesDocuments) {
         a.innerText = '📄';
         return a;
     }
-
-// exemple : insérer un document nouvellement ajouté dans le tiroir correct
-    function insererDocumentDansTiroir(doc) {
-        // doc doit contenir au moins id,titre,type,fichier,...
-        const container = getContainerForType(doc.type);
-        if (!container) return;
-        // crée un <a> similaire à ton snippet ; tu peux aussi ajouter le texte/titre
-        const a = makeAfficherLien(doc.id);
-        // par ex. ajouter le titre à côté
-        const label = document.createElement('span');
-        label.className = 'ms-1';
-        label.textContent = ' ' + doc.titre;
-        const wrapper = document.createElement('div');
-        wrapper.appendChild(a);
-        wrapper.appendChild(label);
-
-        // insérer en tête (nouveau d'abord)
-        container.insertBefore(wrapper, container.firstChild);
-    }
 }
-
