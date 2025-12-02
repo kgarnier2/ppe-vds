@@ -37,8 +37,7 @@ if (!is_file($cheminFichier)) {
     Erreur::afficherReponse("Le document demandé '$titre' n'a pas été trouvé.", 'global');
 }
 
-// comptabilisation de la demande si nécessaire
-// Document::comptabiliserDemande($id);
+
 
 // Transmission sécurisée du fichier PDF
 $nomFichier = $titre . '.pdf';

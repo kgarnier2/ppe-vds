@@ -7,6 +7,7 @@
  *  - id : identifiant
  *  - titre : titre du document
  *  - type : catégorie (ex: 4saisons, Club, Public, Membre...)
+ *  - date : date du document
  *  - fichier : nom du fichier stocké (chemin relatif /nomfichier)
  *  - description : (optionnel) description courte
  *
@@ -70,6 +71,11 @@ class Document extends Table
         $input->MaxLength = 100;
         $this->columns['type'] = $input;
 
+        // date
+        $input = new InputText();
+        $input->Require = true;
+        $this->columns['date'] = $input;
+
         // fichier (stocke le nom/chemin relatif)
         $input = new InputText();
         $input->Require = false;
@@ -82,18 +88,18 @@ class Document extends Table
         $this->columns['description'] = $input;
 
         // Colonnes modifiables directement via API si nécessaire
-        $this->listOfColumns->Values = ['titre', 'type', 'description'];
+        $this->listOfColumns->Values = ['titre', 'type', 'date', 'description'];
     }
 
     /**
      * Récupère tous les documents triés par id descendant
      *
-     * @return array<int, array{id:int,titre:string,type:string,fichier:string,description:string}>
+     * @return array<int, array{id:int,titre:string,type:string,date:string,fichier:string,description:string}>
      */
     public static function getAll(): array
     {
         $sql = <<<SQL
-            SELECT id, titre, type, fichier, COALESCE(description, '') AS description
+            SELECT id, titre, type, date, fichier, COALESCE(description, '') AS description
             FROM document
             ORDER BY id DESC;
 SQL;
@@ -104,6 +110,8 @@ SQL;
         $uploadsBase = '/uploads/';
         foreach ($rows as &$r) {
             $r['url'] = $r['fichier'] ? $uploadsBase . $r['fichier'] : null;
+            // Ajouter un flag pour indiquer si le fichier est présent
+            $r['present'] = $r['fichier'] && file_exists(self::DIR . '/' . $r['fichier']);
         }
         unset($r);
 
@@ -114,12 +122,12 @@ SQL;
      * Récupère les documents d'un type/catégorie donné
      *
      * @param string $type
-     * @return array<int, array{id:int,titre:string,type:string,fichier:string,description:string}>
+     * @return array<int, array{id:int,titre:string,type:string,date:string,fichier:string,description:string}>
      */
     public static function getByType(string $type): array
     {
         $sql = <<<SQL
-            SELECT id, titre, type, fichier, COALESCE(description, '') AS description
+            SELECT id, titre, type, date, fichier, COALESCE(description, '') AS description
             FROM document
             WHERE LOWER(type) = LOWER(:type)
             ORDER BY id DESC;
@@ -130,6 +138,7 @@ SQL;
         $uploadsBase = '/uploads/';
         foreach ($rows as &$r) {
             $r['url'] = $r['fichier'] ? $uploadsBase . $r['fichier'] : null;
+            $r['present'] = $r['fichier'] && file_exists(self::DIR . '/' . $r['fichier']);
         }
         unset($r);
 
@@ -145,7 +154,7 @@ SQL;
     public static function getById(int $id): ?array
     {
         $sql = <<<SQL
-            SELECT id, titre, type, fichier, COALESCE(description, '') AS description
+            SELECT id, titre, type, date, fichier, COALESCE(description, '') AS description
             FROM document
             WHERE id = :id;
 SQL;
@@ -154,6 +163,7 @@ SQL;
 
         if ($row) {
             $row['url'] = $row['fichier'] ? '/uploads/' . $row['fichier'] : null;
+            $row['present'] = $row['fichier'] && file_exists(self::DIR . '/' . $row['fichier']);
         }
 
         return $row;
@@ -198,7 +208,4 @@ SQL;
     {
         return self::CONFIG;
     }
-
-
-
 }

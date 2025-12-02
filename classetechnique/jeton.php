@@ -20,24 +20,23 @@ class Jeton
      */
     public static function creer(int $dureeVie = 0)
     {
-        if (!isset($_SESSION['token'])) {
 
-            $token = bin2hex(random_bytes(32));
-            $expires = $dureeVie > 0 ? time() + $dureeVie : time() + (10 * 365 * 24 * 3600); // 10 ans
+        $token = bin2hex(random_bytes(32));
+        $expires = $dureeVie > 0 ? time() + $dureeVie : time() + (10 * 365 * 24 * 3600); // 10 ans
 
-            $_SESSION['token'] = [
-                'value' => $token,
-                'expires' => $expires,
-            ];
+        $_SESSION['token'] = [
+            'value' => $token,
+            'expires' => $expires,
+        ];
 
-            setcookie('token', $token, [
-                'expires' => $expires, // Le navigateur supprimera le cookie après cette date
-                'path' => '/',
-                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', // HTTPS obligatoire
-                'httponly' => true,    // Le cookie n'est pas accessible en JavaScript
-                'samesite' => 'Strict' // Protection CSRF
-            ]);
-        }
+        setcookie('token', $token, [
+            'expires' => $expires, // Le navigateur supprimera le cookie après cette date
+            'path' => '/',
+            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', // HTTPS obligatoire
+            'httponly' => true,    // Le cookie n'est pas accessible en JavaScript
+            'samesite' => 'Strict' // Protection CSRF
+        ]);
+
     }
 
 

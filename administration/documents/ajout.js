@@ -149,7 +149,7 @@ if (!form) {
                 // appelAjax devrait appeler Erreur::envoyerReponse en cas d'erreur,
                 // mais ici on affiche un message clair.
                 console.error('Erreur AJAX ajout:', err);
-                afficherMessageErreur(err && err.message ? err.message : "Erreur serveur lors de l'ajout");
+                afficherMessageErreur(err && err.message ? err.message : "Ce type de fichier n'est pas accepter");
             }
         });
     }

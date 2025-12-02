@@ -1,26 +1,185 @@
-<div class="m-1" style="width: 52rem">
-    <div class="d-flex  justify-content-between mb-3">
-        <p>Nombre de documents : <span id="nb" class="fw-bold text-success"></span></p>
-        <a href="ajout.php" class="btn btn-outline-danger mb-3">Ajouter un document️</a>
+<div class="container-fluid py-4">
+    <!-- En-tête avec statistiques -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="h4 mb-1">Gestion des documents</h2>
+                    <p class="text-muted mb-0">Nombre de documents : <span id="nb" class="fw-bold text-success"></span></p>
+                </div>
+                <a href="ajout.php" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Ajouter un document
+                </a>
+
+                <a href="test_remplacement.php" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Ajoueeeeeeeter un document
+                </a>
+            </div>
+        </div>
     </div>
-    <input type="file" id="fichier" accept="" style='display: none '>
-    <table style="margin : auto">
-        <thead>
-        <tr>
-            <th style='width: 130px'></th>
-            <th style="width:150px">Date</th>
-            <th style="width:500px">Titre</th>
-            <th style="width:100px">Catégorie</th>
-        </tr>
-        </thead>
-        <tbody id="lesLignes"></tbody>
-    </table>
+
+    <!-- Fichier input caché pour le remplacement -->
+    <input type="file" id="fichier" accept="" style="display: none">
+
+    <!-- Cartes par catégorie -->
+    <div class="row g-4">
+        <!-- Carte Club -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-primary h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Club
+                    </h6>
+                    <span class="badge bg-light text-primary" id="count-club">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="documentClub">
+                        <!-- Les documents Club seront insérés ici dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte 4 Saisons -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-success h-100">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-leaf me-2"></i>4 Saisons
+                    </h6>
+                    <span class="badge bg-light text-success" id="count-4saisons">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="document4Saisons">
+                        <!-- Les documents 4 Saisons seront insérés ici dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte Membre -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-warning h-100">
+                <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-user-friends me-2"></i>Membre
+                    </h6>
+                    <span class="badge bg-light text-warning" id="count-membre">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="documentMembre">
+                        <!-- Les documents Membre seront insérés ici dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte Public -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-info h-100">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-globe me-2"></i>Public
+                    </h6>
+                    <span class="badge bg-light text-info" id="count-public">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="documentPublic">
+                        <!-- Les documents Public seront insérés ici dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out;
+}
 
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
 
+.list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.15s ease-in-out;
+}
 
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
 
+.document-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
 
+.document-info {
+    flex: 1;
+    min-width: 0;
+}
 
+.document-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
+.document-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.document-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.document-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.document-actions .btn {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.document-actions .btn:hover {
+    opacity: 1;
+}
+
+.list-group-item:hover .document-actions .btn {
+    opacity: 0.8;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Animation de suppression */
+.list-group-item.fade-out {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+}
+
+.empty-message {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+</style>

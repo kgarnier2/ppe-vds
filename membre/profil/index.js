@@ -4,7 +4,7 @@
 // Import des fonctions nécessaires
 // -----------------------------------------------------------------------------------
 
-import {initialiserMenuHorizontal} from "/composant/menuhorizontal/menu.js";
+
 
 // -----------------------------------------------------------------------------------
 // Déclaration des variables globales
@@ -20,7 +20,7 @@ const email = document.getElementById('email');
 // Programme principal
 // -----------------------------------------------------------------------------------
 
-initialiserMenuHorizontal(lesOptions);
+
 
 // afficher les informations
 nom.textContent = data.nom + ' ' + data.prenom;
