@@ -10,10 +10,60 @@
                 <a href="ajout.php" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Ajouter un document
                 </a>
+            </div>
+        </div>
+    </div>
 
-                <a href="test_remplacement.php" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Ajoueeeeeeeter un document
-                </a>
+    <!-- BARRE DE RECHERCHE ET FILTRES -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Barre de recherche -->
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="rechercheInput" 
+                                       placeholder="Rechercher un document par titre...">
+                                <button class="btn btn-outline-secondary" type="button" id="btnEffacerRecherche" title="Effacer la recherche">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre par catégorie -->
+                        <div class="col-md-3">
+                            <select class="form-select" id="filtreCategorie">
+                                <option value="toutes">Toutes les catégories</option>
+                                <option value="4saisons">4 saisons</option>
+                                <option value="Club">Club</option>
+                                <option value="Public">Public</option>
+                                <option value="Membre">Membre</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par date -->
+                        <div class="col-md-3">
+                            <select class="form-select" id="filtreDate">
+                                <option value="recent">Plus récents en premier</option>
+                                <option value="ancien">Plus anciens en premier</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Résultats de recherche -->
+                    <div class="mt-3" id="resultatsRecherche" style="display: none;">
+                        <span id="nombreResultats" class="badge bg-info"></span> document(s) trouvé(s)
+                        <button class="btn btn-sm btn-outline-secondary ms-2" id="btnReinitialiserFiltres">
+                            <i class="fas fa-redo me-1"></i>Réinitialiser les filtres
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -33,9 +83,7 @@
                     <span class="badge bg-light text-primary" id="count-club">0</span>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush" id="documentClub">
-                        <!-- Les documents Club seront insérés ici dynamiquement -->
-                    </div>
+                    <div class="list-group list-group-flush" id="documentClub"></div>
                 </div>
             </div>
         </div>
@@ -50,9 +98,7 @@
                     <span class="badge bg-light text-success" id="count-4saisons">0</span>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush" id="document4Saisons">
-                        <!-- Les documents 4 Saisons seront insérés ici dynamiquement -->
-                    </div>
+                    <div class="list-group list-group-flush" id="document4Saisons"></div>
                 </div>
             </div>
         </div>
@@ -67,9 +113,7 @@
                     <span class="badge bg-light text-warning" id="count-membre">0</span>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush" id="documentMembre">
-                        <!-- Les documents Membre seront insérés ici dynamiquement -->
-                    </div>
+                    <div class="list-group list-group-flush" id="documentMembre"></div>
                 </div>
             </div>
         </div>
@@ -84,9 +128,7 @@
                     <span class="badge bg-light text-info" id="count-public">0</span>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush" id="documentPublic">
-                        <!-- Les documents Public seront insérés ici dynamiquement -->
-                    </div>
+                    <div class="list-group list-group-flush" id="documentPublic"></div>
                 </div>
             </div>
         </div>
@@ -94,6 +136,7 @@
 </div>
 
 <style>
+/* Styles généraux */
 .card {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     transition: box-shadow 0.15s ease-in-out;
@@ -105,7 +148,7 @@
 
 .list-group-item {
     border: none;
-    padding: 0.75rem 1rem;
+    padding: 1rem;
     transition: background-color 0.15s ease-in-out;
 }
 
@@ -116,8 +159,8 @@
 .document-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .document-info {
@@ -125,43 +168,10 @@
     min-width: 0;
 }
 
-.document-title {
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.document-date {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-.document-description {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
-}
-
 .document-actions {
     display: flex;
     gap: 0.25rem;
     flex-shrink: 0;
-}
-
-.document-actions .btn {
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-}
-
-.document-actions .btn:hover {
-    opacity: 1;
-}
-
-.list-group-item:hover .document-actions .btn {
-    opacity: 0.8;
 }
 
 .btn-sm {
@@ -177,9 +187,203 @@
 }
 
 .empty-message {
-    padding: 1rem;
+    padding: 2rem 1rem;
     text-align: center;
     color: #6c757d;
     font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    margin: 0.5rem;
+}
+
+/* Styles pour l'édition inline */
+.document-title-edit,
+.document-type-edit {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #dee2e6;
+    background: white;
+}
+
+.document-title-edit:focus,
+.document-type-edit:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #80bdff;
+    outline: 0;
+}
+
+.document-title-edit {
+    font-weight: 500;
+    font-size: 1rem;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.document-type-edit {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.25rem;
+    height: auto;
+    max-width: 140px;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500 !important;
+}
+
+/* Date non éditable */
+.document-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+/* Styles pour les selects colorés */
+.document-type-edit option[value="4saisons"] {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.document-type-edit option[value="Club"] {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.document-type-edit option[value="Public"] {
+    color: #17a2b8;
+    font-weight: 500;
+}
+
+.document-type-edit option[value="Membre"] {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+/* Indicateur d'édition en cours */
+.saving {
+    position: relative;
+}
+
+.saving::after {
+    content: "Sauvegarde...";
+    position: absolute;
+    top: -20px;
+    right: 0;
+    background: #17a2b8;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* Badges pour les compteurs */
+.card-header .badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.6em;
+}
+
+/* Effets visuels pour validation */
+.success-border {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+.error-border {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+/* Tooltip pour les actions */
+.document-actions .btn {
+    position: relative;
+}
+
+.document-actions .btn:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+/* Styles pour la recherche */
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+#rechercheInput:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+#resultatsRecherche {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animation pour les filtres actifs */
+.card-body {
+    transition: all 0.3s ease;
+}
+
+.card-body:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Indicateur visuel pour les champs de recherche actifs */
+#rechercheInput:not(:placeholder-shown),
+#filtreCategorie:not([value="toutes"]),
+#filtreDate:not([value="recent"]) {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Animation pour les changements */
+@keyframes highlight {
+    0% { background-color: rgba(40, 167, 69, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 1.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .document-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .document-actions {
+        align-self: flex-end;
+    }
+    
+    .document-title-edit {
+        font-size: 0.9rem;
+    }
+    
+    /* Pour la barre de recherche sur mobile */
+    .row.g-3 > .col-md-6,
+    .row.g-3 > .col-md-3 {
+        margin-bottom: 0.5rem;
+    }
 }
 </style>
