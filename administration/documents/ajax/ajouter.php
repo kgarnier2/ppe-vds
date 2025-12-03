@@ -1,5 +1,4 @@
 <?php
-// activation du chargement dynamique des ressources
 require $_SERVER['DOCUMENT_ROOT'] . '/include/autoload.php';
 
 // Contrôle sur le fichier téléversé
@@ -24,7 +23,24 @@ if (!$document->donneesTransmises()) {
 
 // Toutes les données sont-elles valides ?
 if (!$document->checkAll()) {
-    Erreur::envoyerReponse("Certaines données transmises ne sont pas valides", 'global');
+    // Récupérer les messages d'erreur spécifiques
+    $errors = [];
+    foreach ($document->columns as $columnName => $input) {
+        if ($input->ValidationMessage) {
+            $errors[$columnName] = $input->ValidationMessage;
+        }
+    }
+    
+    // Envoyer le premier message d'erreur trouvé
+    $errorMessage = "Veuillez vérifier les champs du formulaire";
+    foreach ($errors as $column => $messages) {
+        if (!empty($messages)) {
+            $errorMessage = reset($messages); // Premier message
+            break;
+        }
+    }
+    
+    Erreur::envoyerReponse($errorMessage, 'global');
 }
 
 // Alimentation de la colonne 'fichier' : sa valeur  est stockée dans la propriété  Value de  l'objet $file

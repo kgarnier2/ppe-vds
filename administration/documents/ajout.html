@@ -3,7 +3,10 @@
     <form id="formAjoutDocument" enctype="multipart/form-data" method="post" novalidate>
         <div class="mb-3">
             <label for="titreDocument" class="obligatoire">Titre du document</label>
-            <input type="text" id="titreDocument" name="titre" class="form-control" required minlength="3" maxlength="200">
+            <input type="text" id="titreDocument" name="titre" class="form-control" required minlength="10" maxlength="70"
+                   pattern="^[A-Za-zÀ-ÿ0-9 ,'-]+[?!]?$"
+                   title="Lettres, chiffres, espaces, virgules, apostrophes, tirets. Peut finir par ? ou !">
+            <small class="form-text text-muted">10 à 70 caractères. Caractères autorisés: lettres, chiffres, espaces, virgules, apostrophes, tirets. Peut finir par ? ou !</small>
         </div>
 
         <div class="mb-3">
@@ -19,7 +22,11 @@
 
         <div class="mb-3">
             <label for="dateDocument" class="obligatoire">Date</label>
-            <input type="date" id="dateDocument" name="date" class="form-control" required value="">
+            <input type="date" id="dateDocument" name="date" class="form-control" required 
+                   value="<?php echo date('Y-m-d'); ?>" readonly
+                   onfocus="this.blur()" 
+                   style="background-color: #f8f9fa; cursor: not-allowed;">
+            <small class="form-text text-muted">La date est automatiquement définie à aujourd'hui et ne peut pas être modifiée</small>
         </div>
 
         <div class="mb-3">
@@ -28,12 +35,13 @@
         </div>
 
         <div class="mb-3">
-            <label class="obligatoire">Fichier</label>
+            <label class="obligatoire">Fichier PDF</label>
             <div class="d-flex align-items-center gap-2">
-                <button id="btnChoisirFichier" type="button" class="btn btn-outline-secondary btn-sm">📁 Choisir un fichier</button>
+                <button id="btnChoisirFichier" type="button" class="btn btn-outline-secondary btn-sm">📁 Choisir un fichier PDF</button>
                 <span id="nomFichier" class="text-muted">Aucun fichier sélectionné</span>
             </div>
-            <input type="file" id="fichierDocument" name="fichier" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt" style="display:none" required>
+            <input type="file" id="fichierDocument" name="fichier" accept=".pdf" style="display:none" required>
+            <small class="form-text text-muted">Fichier PDF uniquement, taille max: 1 Mo</small>
         </div>
 
         <div class="mb-3">

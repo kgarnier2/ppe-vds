@@ -1,11 +1,10 @@
 <div class="container-fluid py-4">
-    <!-- En-tête avec statistiques -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="h4 mb-1">Gestion des documents</h2>
-                    <p class="text-muted mb-0">Nombre de documents : <span id="nb" class="fw-bold text-success"></span></p>
+                    <p class="text-muted mb-0">Documents : <span id="nb" class="fw-bold text-success">0</span></p>
                 </div>
                 <a href="ajout.php" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Ajouter un document
@@ -14,53 +13,41 @@
         </div>
     </div>
 
-    <!-- BARRE DE RECHERCHE ET FILTRES -->
+    <!-- BARRE DE RECHERCHE -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="row g-3">
-                        <!-- Barre de recherche -->
                         <div class="col-md-6">
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="rechercheInput" 
-                                       placeholder="Rechercher un document par titre...">
-                                <button class="btn btn-outline-secondary" type="button" id="btnEffacerRecherche" title="Effacer la recherche">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="rechercheInput" placeholder="Rechercher...">
+                                <button class="btn btn-outline-secondary" type="button" id="btnEffacerRecherche">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
-                        
-                        <!-- Filtre par catégorie -->
                         <div class="col-md-3">
                             <select class="form-select" id="filtreCategorie">
-                                <option value="toutes">Toutes les catégories</option>
+                                <option value="toutes">Toutes catégories</option>
                                 <option value="4saisons">4 saisons</option>
                                 <option value="Club">Club</option>
                                 <option value="Public">Public</option>
                                 <option value="Membre">Membre</option>
                             </select>
                         </div>
-                        
-                        <!-- Filtre par date -->
                         <div class="col-md-3">
                             <select class="form-select" id="filtreDate">
-                                <option value="recent">Plus récents en premier</option>
-                                <option value="ancien">Plus anciens en premier</option>
+                                <option value="recent">Plus récents</option>
+                                <option value="ancien">Plus anciens</option>
                             </select>
                         </div>
                     </div>
-                    
-                    <!-- Résultats de recherche -->
                     <div class="mt-3" id="resultatsRecherche" style="display: none;">
-                        <span id="nombreResultats" class="badge bg-info"></span> document(s) trouvé(s)
+                        <span id="nombreResultats" class="badge bg-info">0</span> document(s)
                         <button class="btn btn-sm btn-outline-secondary ms-2" id="btnReinitialiserFiltres">
-                            <i class="fas fa-redo me-1"></i>Réinitialiser les filtres
+                            <i class="fas fa-redo me-1"></i>Réinitialiser
                         </button>
                     </div>
                 </div>
@@ -68,18 +55,15 @@
         </div>
     </div>
 
-    <!-- Fichier input caché pour le remplacement -->
-    <input type="file" id="fichier" accept="" style="display: none">
+    <!-- FICHIER CACHÉ -->
+    <input type="file" id="fichier" accept=".pdf" style="display: none">
 
-    <!-- Cartes par catégorie -->
+    <!-- CARTES -->
     <div class="row g-4">
-        <!-- Carte Club -->
         <div class="col-12 col-md-6 col-xl-3">
             <div class="card border-primary h-100">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                        <i class="fas fa-users me-2"></i>Club
-                    </h6>
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <h6 class="mb-0"><i class="fas fa-users me-2"></i>Club</h6>
                     <span class="badge bg-light text-primary" id="count-club">0</span>
                 </div>
                 <div class="card-body p-0">
@@ -88,13 +72,10 @@
             </div>
         </div>
 
-        <!-- Carte 4 Saisons -->
         <div class="col-12 col-md-6 col-xl-3">
             <div class="card border-success h-100">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                        <i class="fas fa-leaf me-2"></i>4 Saisons
-                    </h6>
+                <div class="card-header bg-success text-white d-flex justify-content-between">
+                    <h6 class="mb-0"><i class="fas fa-leaf me-2"></i>4 Saisons</h6>
                     <span class="badge bg-light text-success" id="count-4saisons">0</span>
                 </div>
                 <div class="card-body p-0">
@@ -103,13 +84,10 @@
             </div>
         </div>
 
-        <!-- Carte Membre -->
         <div class="col-12 col-md-6 col-xl-3">
             <div class="card border-warning h-100">
-                <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                        <i class="fas fa-user-friends me-2"></i>Membre
-                    </h6>
+                <div class="card-header bg-warning text-white d-flex justify-content-between">
+                    <h6 class="mb-0"><i class="fas fa-user-friends me-2"></i>Membre</h6>
                     <span class="badge bg-light text-warning" id="count-membre">0</span>
                 </div>
                 <div class="card-body p-0">
@@ -118,13 +96,10 @@
             </div>
         </div>
 
-        <!-- Carte Public -->
         <div class="col-12 col-md-6 col-xl-3">
             <div class="card border-info h-100">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                        <i class="fas fa-globe me-2"></i>Public
-                    </h6>
+                <div class="card-header bg-info text-white d-flex justify-content-between">
+                    <h6 class="mb-0"><i class="fas fa-globe me-2"></i>Public</h6>
                     <span class="badge bg-light text-info" id="count-public">0</span>
                 </div>
                 <div class="card-body p-0">
@@ -136,417 +111,50 @@
 </div>
 
 <style>
-/* Styles généraux */
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: box-shadow 0.15s ease-in-out;
+.document-title-edit.success-border {
+    border-color: #28a745 !important;
+    border-width: 2px !important;
+    background-color: rgba(40, 167, 69, 0.05) !important;
+    animation: pulse-green 1.5s ease-in-out;
 }
 
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+/* Animation de pulsation pour le titre modifié */
+@keyframes pulse-green {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
 }
 
-.list-group-item {
-    border: none;
-    padding: 1rem;
-    transition: background-color 0.15s ease-in-out;
+/* Indicateur "saved" */
+.saved-indicator {
+    animation: fadeInOut 3s ease-in-out;
+    opacity: 1;
 }
 
-.list-group-item:hover {
-    background-color: #f8f9fa;
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-5px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-5px); }
 }
 
-.document-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.document-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.document-actions {
-    display: flex;
-    gap: 0.25rem;
-    flex-shrink: 0;
-}
-
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-
-/* Animation de suppression */
-.list-group-item.fade-out {
-    opacity: 0;
-    transform: translateX(-100%);
-    transition: all 0.3s ease;
-}
-
-.empty-message {
-    padding: 2rem 1rem;
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    background-color: #f8f9fa;
-    border-radius: 0.375rem;
-    margin: 0.5rem;
-}
-
-/* Styles pour l'édition inline */
-.document-title-edit,
-.document-type-edit {
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #dee2e6;
-    background: white;
-}
-
-.document-title-edit:focus,
-.document-type-edit:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+/* Effet de focus amélioré pour le titre */
+.document-title-edit:focus {
     border-color: #80bdff;
+    box-shadow: 0 0 0 0.3rem rgba(0, 123, 255, 0.25) !important;
     outline: 0;
 }
 
-.document-title-edit {
-    font-weight: 500;
-    font-size: 1rem;
-    width: 100%;
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.25rem;
-    margin-bottom: 0.5rem;
-}
-
+/* Transition pour tous les effets */
+.document-title-edit,
+.document-description-edit,
 .document-type-edit {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.25rem;
-    height: auto;
-    max-width: 140px;
-    border-radius: 0.25rem;
-    margin-bottom: 0.5rem;
-    font-weight: 500 !important;
-}
-
-/* Date non éditable */
-.document-date {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-bottom: 0.5rem;
-}
-
-/* Styles pour les selects colorés */
-.document-type-edit option[value="4saisons"] {
-    color: #28a745;
-    font-weight: 500;
-}
-
-.document-type-edit option[value="Club"] {
-    color: #007bff;
-    font-weight: 500;
-}
-
-.document-type-edit option[value="Public"] {
-    color: #17a2b8;
-    font-weight: 500;
-}
-
-.document-type-edit option[value="Membre"] {
-    color: #ffc107;
-    font-weight: 500;
-}
-
-/* Indicateur d'édition en cours */
-.saving {
-    position: relative;
-}
-
-.saving::after {
-    content: "Sauvegarde...";
-    position: absolute;
-    top: -20px;
-    right: 0;
-    background: #17a2b8;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 10px;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-
-/* Badges pour les compteurs */
-.card-header .badge {
-    font-size: 0.75rem;
-    padding: 0.25em 0.6em;
-}
-
-/* Effets visuels pour validation */
-.success-border {
-    border-color: #28a745 !important;
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
-}
-
-.error-border {
-    border-color: #dc3545 !important;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-}
-
-/* Tooltip pour les actions */
-.document-actions .btn {
-    position: relative;
-}
-
-.document-actions .btn:hover::after {
-    content: attr(title);
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 1000;
-}
-
-/* Styles pour la recherche */
-.input-group-text {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-}
-
-#rechercheInput:focus {
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-#resultatsRecherche {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Animation pour les filtres actifs */
-.card-body {
     transition: all 0.3s ease;
 }
-
-.card-body:hover {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-/* Indicateur visuel pour les champs de recherche actifs */
-#rechercheInput:not(:placeholder-shown),
-#filtreCategorie:not([value="toutes"]),
-#filtreDate:not([value="recent"]) {
-    border-color: #0d6efd;
-    background-color: rgba(13, 110, 253, 0.05);
-}
-
-/* Animation pour les changements */
-@keyframes highlight {
-    0% { background-color: rgba(40, 167, 69, 0.1); }
-    100% { background-color: transparent; }
-}
-
-.highlight {
-    animation: highlight 1.5s ease;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .document-item {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .document-actions {
-        align-self: flex-end;
-    }
-    
-    .document-title-edit {
-        font-size: 0.9rem;
-    }
-    
-    /* Pour la barre de recherche sur mobile */
-    .row.g-3 > .col-md-6,
-    .row.g-3 > .col-md-3 {
-        margin-bottom: 0.5rem;
-    }
-
-    /* Ajoutez ces styles aux styles existants */
-
-/* Mode liste */
-.conteneur-liste-mode {
-    display: none;
-    margin-bottom: 2rem;
-}
-
-.conteneur-liste-mode .card {
-    border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.liste-mode-item {
-    padding: 1rem 1.25rem;
-    border: none;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.15s ease;
-}
-
-.liste-mode-item:hover {
-    background-color: #f8f9fa;
-}
-
-.liste-mode-item:last-child {
-    border-bottom: none;
-}
-
-.document-item-liste {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.document-info-liste {
-    flex: 1;
-    min-width: 0;
-}
-
-.document-titre-liste {
-    margin-bottom: 0.25rem;
-}
-
-.document-titre-liste .document-title-edit {
-    border: 1px solid transparent;
-    background: transparent;
-    padding: 0.25rem 0;
-    font-size: 1rem;
-    font-weight: 500;
-    width: 100%;
-    max-width: 500px;
-}
-
-.document-titre-liste .document-title-edit:hover {
-    border-bottom: 1px dashed #dee2e6;
-}
-
-.document-titre-liste .document-title-edit:focus {
-    border: 1px solid #80bdff;
-    background: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.document-meta-liste {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.document-date-liste {
-    font-size: 0.875rem;
-}
-
-.document-categorie-liste {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
-    font-weight: 500;
-}
-
-.document-actions-liste {
-    display: flex;
-    gap: 0.25rem;
-    flex-shrink: 0;
-}
-
-/* Animation pour le changement de mode */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.conteneur-liste-mode .card {
-    animation: fadeInUp 0.3s ease;
-}
-
-/* Responsive mode liste */
-@media (max-width: 768px) {
-    .document-item-liste {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-    
-    .document-actions-liste {
-        align-self: flex-end;
-    }
-    
-    .document-titre-liste .document-title-edit {
-        max-width: 100%;
-    }
-}
-
-/* Badges colorés */
-.badge[data-type="4saisons"] { background-color: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid #28a745; }
-.badge[data-type="Club"] { background-color: rgba(0, 123, 255, 0.1); color: #007bff; border: 1px solid #007bff; }
-.badge[data-type="Public"] { background-color: rgba(23, 162, 184, 0.1); color: #17a2b8; border: 1px solid #17a2b8; }
-.badge[data-type="Membre"] { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; }
-
-/* Indicateur visuel du mode actif */
-.filtre-actif .form-select {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-/* Transition pour le changement d'affichage */
-.row.g-4, .conteneur-liste-mode {
-    transition: opacity 0.3s ease;
-}
-
-/* Titre de catégorie en mode liste */
-#titre-liste-categorie {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-#titre-liste-categorie::before {
-    content: '';
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-#titre-liste-categorie[style*="#28a745"]::before { background-color: #28a745; }
-#titre-liste-categorie[style*="#007bff"]::before { background-color: #007bff; }
-#titre-liste-categorie[style*="#17a2b8"]::before { background-color: #17a2b8; }
-#titre-liste-categorie[style*="#ffc107"]::before { background-color: #ffc107; }
-}
-
-
 </style>

@@ -1,24 +1,13 @@
 ﻿"use strict";
 
-// -----------------------------------------------------------------------------------
-// Import des fonctions nécessaires
-// -----------------------------------------------------------------------------------
-
 import {appelAjax} from "/composant/fonction/ajax.js";
-import {confirmer, messageBox} from "/composant/fonction/afficher.js";
-import {
-    fichierValide, effacerLesErreurs
-} from "/composant/fonction/formulaire.js";
+import {messageBox} from "/composant/fonction/afficher.js";
+import {fichierValide, effacerLesErreurs} from "/composant/fonction/formulaire.js";
 
-// -----------------------------------------------------------------------------------
-// Déclaration des variables globales
-// -----------------------------------------------------------------------------------
-
+// Variables globales
 let nomFichier;
 const fichier = document.getElementById('fichier');
 const nb = document.getElementById('nb');
-
-// Éléments de recherche
 const rechercheInput = document.getElementById('rechercheInput');
 const filtreCategorie = document.getElementById('filtreCategorie');
 const filtreDate = document.getElementById('filtreDate');
@@ -26,164 +15,94 @@ const btnEffacerRecherche = document.getElementById('btnEffacerRecherche');
 const resultatsRecherche = document.getElementById('resultatsRecherche');
 const nombreResultats = document.getElementById('nombreResultats');
 const btnReinitialiserFiltres = document.getElementById('btnReinitialiserFiltres');
-
-// Containers
 const containerPrincipal = document.querySelector('.row.g-4');
 const containerClub = document.getElementById('documentClub');
 const container4Saisons = document.getElementById('document4Saisons');
 const containerPublic = document.getElementById('documentPublic');
 const containerMembre = document.getElementById('documentMembre');
 
-// Données originales
 let documentsOriginaux = [];
+let timeoutSauvegarde = null;
 
 // -----------------------------------------------------------------------------------
-// Fonctions utilitaires
+// FONCTION DE CONFIRMATION GRAPHIQUE
 // -----------------------------------------------------------------------------------
-
-function formaterDate(dateStr) {
-    if (!dateStr) return 'Non définie';
-    
-    const str = String(dateStr);
-    const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-        return match[3] + '/' + match[2] + '/' + match[1];
-    }
-    
-    return str;
-}
-
-function creerElementDocument(element, modeListe = false) {
-    const div = document.createElement('div');
-    div.className = modeListe ? 'list-group-item liste-mode-item' : 'list-group-item';
-    div.id = `doc-${element.id}`;
-    div.dataset.titre = element.titre.toLowerCase();
-    div.dataset.categorie = element.type;
-    div.dataset.date = element.date;
-    
-    const dateFormatee = formaterDate(element.date);
-    
-    if (modeListe) {
-        // Mode liste - AVEC LE SELECT D'ÉDITION DE CATÉGORIE
-        div.innerHTML = `
-            <div class="document-item-liste">
-                <div class="document-info-liste">
-                    <div class="document-titre-liste">
-                        <input type="text" 
-                               class="form-control form-control-sm document-title-edit" 
-                               value="${element.titre}" 
-                               data-id="${element.id}" 
-                               data-field="titre"
-                               maxlength="200">
-                    </div>
-                    <div class="document-meta-liste">
-                        <span class="document-date-liste text-muted small">
-                            <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
-                        </span>
-                        <div class="document-type-container-liste ms-2">
-                            <select class="form-select form-select-sm document-type-edit" 
-                                    data-id="${element.id}" 
-                                    data-field="type"
-                                    style="max-width: 140px; font-weight: 500;">
-                                <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''} style="color: #28a745; font-weight: 500;">4 saisons</option>
-                                <option value="Club" ${element.type === 'Club' ? 'selected' : ''} style="color: #007bff; font-weight: 500;">Club</option>
-                                <option value="Public" ${element.type === 'Public' ? 'selected' : ''} style="color: #17a2b8; font-weight: 500;">Public</option>
-                                <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''} style="color: #ffc107; font-weight: 500;">Membre</option>
-                            </select>
+function confirmationGraphique(titre, message) {
+    return new Promise((resolve) => {
+        const modalId = 'confirmation-modal-' + Date.now();
+        
+        const modalHtml = `
+            <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-exclamation-triangle me-2"></i>${titre}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-question-circle fa-2x text-warning"></i>
+                                </div>
+                                <div>
+                                    ${message}
+                                    <div class="alert alert-warning mt-3 mb-0">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        <small>Cette action est irréversible</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </button>
+                            <button type="button" class="btn btn-danger" id="btnConfirmerSuppression">
+                                <i class="fas fa-trash me-2"></i>Supprimer
+                            </button>
                         </div>
                     </div>
                 </div>
-                
-                <div class="document-actions-liste">
-                    ${element.present ? 
-                        `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
-                           class="btn btn-sm btn-outline-primary" 
-                           title="Voir le document">
-                            <i class="fas fa-eye"></i>
-                        </a>` : 
-                        `<span class="btn btn-sm btn-outline-secondary" title="Document non trouvé">
-                            <i class="fas fa-question"></i>
-                        </span>`
-                    }
-                    <button class="btn btn-sm btn-outline-warning btn-remplacer" 
-                            data-id="${element.id}" 
-                            data-fichier="${element.fichier}"
-                            title="Remplacer le fichier">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger btn-supprimer" 
-                            data-id="${element.id}"
-                            title="Supprimer le document">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
             </div>
         `;
-    } else {
-        // Mode carte
-        div.innerHTML = `
-            <div class="document-item">
-                <div class="document-info">
-                    <div class="mb-2">
-                        <input type="text" 
-                               class="form-control form-control-sm document-title-edit" 
-                               value="${element.titre}" 
-                               data-id="${element.id}" 
-                               data-field="titre"
-                               maxlength="200">
-                    </div>
-                    
-                    <div class="document-date text-muted small mb-2">
-                        <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
-                    </div>
-                    
-                    <div class="mb-2">
-                        <select class="form-select form-select-sm document-type-edit" 
-                                data-id="${element.id}" 
-                                data-field="type"
-                                style="max-width: 140px; font-weight: 500;">
-                            <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''} style="color: #28a745; font-weight: 500;">4 saisons</option>
-                            <option value="Club" ${element.type === 'Club' ? 'selected' : ''} style="color: #007bff; font-weight: 500;">Club</option>
-                            <option value="Public" ${element.type === 'Public' ? 'selected' : ''} style="color: #17a2b8; font-weight: 500;">Public</option>
-                            <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''} style="color: #ffc107; font-weight: 500;">Membre</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="document-actions">
-                    ${element.present ? 
-                        `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
-                           class="btn btn-sm btn-outline-primary" 
-                           title="Voir le document">
-                            <i class="fas fa-eye"></i>
-                        </a>` : 
-                        `<span class="btn btn-sm btn-outline-secondary" title="Document non trouvé">
-                            <i class="fas fa-question"></i>
-                        </span>`
-                    }
-                    <button class="btn btn-sm btn-outline-warning btn-remplacer" 
-                            data-id="${element.id}" 
-                            data-fichier="${element.fichier}"
-                            title="Remplacer le fichier">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger btn-supprimer" 
-                            data-id="${element.id}"
-                            title="Supprimer le document">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Appliquer les couleurs aux selects
-    const selects = div.querySelectorAll('.document-type-edit');
-    selects.forEach(select => {
-        appliquerCouleurSelect(select);
+        
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = modalHtml;
+        document.body.appendChild(modalContainer);
+        
+        const modalElement = document.getElementById(modalId);
+        const modal = new bootstrap.Modal(modalElement);
+        
+        document.getElementById('btnConfirmerSuppression').addEventListener('click', function() {
+            modal.hide();
+            setTimeout(() => {
+                modalContainer.remove();
+                resolve(true);
+            }, 300);
+        });
+        
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            setTimeout(() => {
+                modalContainer.remove();
+                resolve(false);
+            }, 300);
+        });
+        
+        modal.show();
     });
-    
-    return div;
+}
+
+// -----------------------------------------------------------------------------------
+// FONCTIONS UTILITAIRES
+// -----------------------------------------------------------------------------------
+function formaterDate(dateStr) {
+    if (!dateStr) return 'Non définie';
+    const str = String(dateStr);
+    const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) return match[3] + '/' + match[2] + '/' + match[1];
+    return str;
 }
 
 function appliquerCouleurSelect(select) {
@@ -193,11 +112,10 @@ function appliquerCouleurSelect(select) {
         'Public': '#17a2b8',
         'Membre': '#ffc107'
     };
-    
     const couleur = couleurs[select.value] || '#6c757d';
     select.style.color = couleur;
     select.style.borderColor = couleur;
-    select.style.backgroundColor = couleur + '10'; // Version très claire
+    select.style.backgroundColor = couleur + '10';
 }
 
 function ajouterMessageVide(container, message = 'Aucun document dans cette catégorie') {
@@ -211,68 +129,185 @@ function ajouterMessageVide(container, message = 'Aucun document dans cette cat�
 }
 
 // -----------------------------------------------------------------------------------
-// Fonctions d'affichage
+// CRÉATION DES ÉLÉMENTS DOCUMENT
 // -----------------------------------------------------------------------------------
+function creerElementDocument(element, modeListe = false) {
+    const div = document.createElement('div');
+    div.className = modeListe ? 'list-group-item liste-mode-item' : 'list-group-item';
+    div.id = `doc-${element.id}`;
+    div.dataset.titre = element.titre.toLowerCase();
+    div.dataset.categorie = element.type;
+    div.dataset.date = element.date;
+    
+    const dateFormatee = formaterDate(element.date);
+    const description = element.description || '';
+    
+    if (modeListe) {
+        div.innerHTML = `
+            <div class="document-item-liste">
+                <div class="document-info-liste">
+                    <div class="document-titre-liste">
+                        <input type="text" 
+                               class="form-control form-control-sm document-title-edit" 
+                               value="${element.titre}" 
+                               data-id="${element.id}" 
+                               data-field="titre"
+                               maxlength="200">
+                    </div>
+                    <div class="document-description-liste mt-2">
+                        <textarea class="form-control form-control-sm document-description-edit"
+                                  data-id="${element.id}"
+                                  data-field="description"
+                                  rows="2"
+                                  maxlength="500"
+                                  placeholder="Description (optionnelle)">${description}</textarea>
+                        <small class="text-muted">${description.length}/500</small>
+                    </div>
+                    <div class="document-meta-liste mt-2">
+                        <span class="document-date-liste text-muted small">
+                            <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
+                        </span>
+                        <div class="document-type-container-liste ms-2">
+                            <select class="form-select form-select-sm document-type-edit" 
+                                    data-id="${element.id}" 
+                                    data-field="type">
+                                <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''}>4 saisons</option>
+                                <option value="Club" ${element.type === 'Club' ? 'selected' : ''}>Club</option>
+                                <option value="Public" ${element.type === 'Public' ? 'selected' : ''}>Public</option>
+                                <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''}>Membre</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="document-actions-liste">
+                    ${element.present ? 
+                        `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
+                           class="btn btn-sm btn-outline-primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </a>` : 
+                        `<span class="btn btn-sm btn-outline-secondary" title="Non trouvé">
+                            <i class="fas fa-question"></i>
+                        </span>`
+                    }
+                    <button class="btn btn-sm btn-outline-warning btn-remplacer" 
+                            data-id="${element.id}" data-fichier="${element.fichier}"
+                            title="Remplacer">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-supprimer" 
+                            data-id="${element.id}" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    } else {
+        div.innerHTML = `
+            <div class="document-item">
+                <div class="document-info">
+                    <div class="mb-2">
+                        <input type="text" 
+                               class="form-control form-control-sm document-title-edit" 
+                               value="${element.titre}" 
+                               data-id="${element.id}" 
+                               data-field="titre"
+                               maxlength="200">
+                    </div>
+                    <div class="mb-2">
+                        <textarea class="form-control form-control-sm document-description-edit"
+                                  data-id="${element.id}"
+                                  data-field="description"
+                                  rows="2"
+                                  maxlength="500"
+                                  placeholder="Description (optionnelle)">${description}</textarea>
+                        <small class="text-muted">${description.length}/500</small>
+                    </div>
+                    <div class="document-date text-muted small mb-2">
+                        <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
+                    </div>
+                    <div class="mb-2">
+                        <select class="form-select form-select-sm document-type-edit" 
+                                data-id="${element.id}" 
+                                data-field="type">
+                            <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''}>4 saisons</option>
+                            <option value="Club" ${element.type === 'Club' ? 'selected' : ''}>Club</option>
+                            <option value="Public" ${element.type === 'Public' ? 'selected' : ''}>Public</option>
+                            <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''}>Membre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    ${element.present ? 
+                        `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
+                           class="btn btn-sm btn-outline-primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </a>` : 
+                        `<span class="btn btn-sm btn-outline-secondary" title="Non trouvé">
+                            <i class="fas fa-question"></i>
+                        </span>`
+                    }
+                    <button class="btn btn-sm btn-outline-warning btn-remplacer" 
+                            data-id="${element.id}" data-fichier="${element.fichier}"
+                            title="Remplacer">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-supprimer" 
+                            data-id="${element.id}" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    div.querySelectorAll('.document-type-edit').forEach(select => {
+        appliquerCouleurSelect(select);
+    });
+    
+    return div;
+}
 
+// -----------------------------------------------------------------------------------
+// FONCTIONS D'AFFICHAGE
+// -----------------------------------------------------------------------------------
 function filtrerEtAfficherDocuments() {
     const recherche = rechercheInput.value.toLowerCase().trim();
     const categorie = filtreCategorie.value;
     const triDate = filtreDate.value;
     
-    // Filtrer les documents
     let documentsFiltres = documentsOriginaux.filter(doc => {
-        if (recherche && !doc.titre.toLowerCase().includes(recherche)) {
-            return false;
-        }
-        
-        if (categorie !== 'toutes' && doc.type !== categorie) {
-            return false;
-        }
-        
+        if (recherche && !doc.titre.toLowerCase().includes(recherche)) return false;
+        if (categorie !== 'toutes' && doc.type !== categorie) return false;
         return true;
     });
     
-    // Trier par date
     if (triDate === 'recent') {
         documentsFiltres.sort((a, b) => new Date(b.date) - new Date(a.date));
     } else if (triDate === 'ancien') {
         documentsFiltres.sort((a, b) => new Date(a.date) - new Date(b.date));
     }
     
-    // Afficher selon le mode
     if (categorie === 'toutes') {
         afficherModeCartes(documentsFiltres);
     } else {
         afficherModeListe(documentsFiltres, categorie);
     }
     
-    // Mettre à jour les résultats
     const aFiltresActifs = recherche || categorie !== 'toutes' || triDate !== 'recent';
-    
     if (aFiltresActifs) {
         resultatsRecherche.style.display = 'block';
         nombreResultats.textContent = documentsFiltres.length;
-        if (nb) {
-            nb.textContent = documentsFiltres.length;
-            nb.style.color = '#dc3545';
-        }
+        if (nb) nb.textContent = documentsFiltres.length;
     } else {
         resultatsRecherche.style.display = 'none';
-        if (nb) {
-            nb.textContent = documentsOriginaux.length;
-            nb.style.color = '#28a745';
-        }
+        if (nb) nb.textContent = documentsOriginaux.length;
     }
 }
 
 function afficherModeCartes(documents) {
-    // Masquer le conteneur de liste s'il existe
     const listeContainer = document.getElementById('conteneur-liste-unique');
-    if (listeContainer) {
-        listeContainer.style.display = 'none';
-    }
+    if (listeContainer) listeContainer.style.display = 'none';
     
-    // Réinitialiser l'affichage des cartes
     [containerClub, container4Saisons, containerPublic, containerMembre].forEach(container => {
         if (container) {
             container.innerHTML = '';
@@ -280,15 +315,8 @@ function afficherModeCartes(documents) {
         }
     });
     
-    // Réinitialiser les compteurs
-    const compteurs = {
-        'club': 0,
-        '4saisons': 0,
-        'membre': 0,
-        'public': 0
-    };
+    const compteurs = { 'club': 0, '4saisons': 0, 'membre': 0, 'public': 0 };
     
-    // Répartir les documents dans les cartes
     documents.forEach(element => {
         let container;
         switch(element.type) {
@@ -297,26 +325,21 @@ function afficherModeCartes(documents) {
             case 'Public': container = containerPublic; break;
             case 'Membre': container = containerMembre; break;
         }
-        
         if (container) {
-            const docElement = creerElementDocument(element, false);
-            container.appendChild(docElement);
+            container.appendChild(creerElementDocument(element, false));
             compteurs[element.type.toLowerCase()]++;
         }
     });
     
-    // Mettre à jour les badges
     ['club', '4saisons', 'membre', 'public'].forEach(type => {
         const badge = document.getElementById(`count-${type}`);
         const container = document.getElementById(`document${type.charAt(0).toUpperCase() + type.slice(1)}`);
-        
         if (badge) badge.textContent = compteurs[type];
         if (container && container.children.length === 0) {
             ajouterMessageVide(container);
         }
     });
     
-    // Masquer les cartes vides
     ['club', '4saisons', 'membre', 'public'].forEach(type => {
         const container = document.getElementById(`document${type.charAt(0).toUpperCase() + type.slice(1)}`);
         if (container && container.children.length === 0) {
@@ -326,15 +349,13 @@ function afficherModeCartes(documents) {
 }
 
 function afficherModeListe(documents, categorie) {
-    // Créer ou récupérer le conteneur de liste
     let listeContainer = document.getElementById('conteneur-liste-unique');
-    
     if (!listeContainer) {
         listeContainer = document.createElement('div');
         listeContainer.id = 'conteneur-liste-unique';
         listeContainer.className = 'card border-0 shadow-sm mt-4';
         listeContainer.innerHTML = `
-            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white border-bottom">
                 <h5 class="mb-0" id="titre-liste-categorie"></h5>
                 <span class="badge" id="count-liste">0</span>
             </div>
@@ -342,44 +363,28 @@ function afficherModeListe(documents, categorie) {
                 <div class="list-group list-group-flush" id="liste-documents"></div>
             </div>
         `;
-        
-        // Insérer après le conteneur principal des cartes
         containerPrincipal.insertAdjacentElement('afterend', listeContainer);
     }
     
-    // Masquer toutes les cartes
     [containerClub, container4Saisons, containerPublic, containerMembre].forEach(container => {
-        if (container) {
-            container.closest('.card').style.display = 'none';
-        }
+        if (container) container.closest('.card').style.display = 'none';
     });
     
-    // Afficher le conteneur de liste
     listeContainer.style.display = 'block';
     
-    // Mettre à jour le titre
     const titreCategorie = document.getElementById('titre-liste-categorie');
     const countListe = document.getElementById('count-liste');
     const listeDocuments = document.getElementById('liste-documents');
     
     if (titreCategorie) {
         const nomsCategories = {
-            '4saisons': '4 saisons',
-            'Club': 'Club',
-            'Public': 'Public',
-            'Membre': 'Membre'
+            '4saisons': '4 saisons', 'Club': 'Club', 'Public': 'Public', 'Membre': 'Membre'
         };
         titreCategorie.textContent = `Documents - ${nomsCategories[categorie] || categorie}`;
-        
-        // Appliquer la couleur au titre et au badge
         const couleurs = {
-            '4saisons': '#28a745',
-            'Club': '#007bff',
-            'Public': '#17a2b8',
-            'Membre': '#ffc107'
+            '4saisons': '#28a745', 'Club': '#007bff', 'Public': '#17a2b8', 'Membre': '#ffc107'
         };
         const couleur = couleurs[categorie] || '#000';
-        
         titreCategorie.style.color = couleur;
         if (countListe) {
             countListe.style.backgroundColor = couleur;
@@ -387,22 +392,16 @@ function afficherModeListe(documents, categorie) {
         }
     }
     
-    if (countListe) {
-        countListe.textContent = documents.length;
-    }
+    if (countListe) countListe.textContent = documents.length;
     
-    // Vider et remplir la liste
     if (listeDocuments) {
         listeDocuments.innerHTML = '';
-        
         if (documents.length === 0) {
-            ajouterMessageVide(listeDocuments, `Aucun document dans la catégorie ${categorie}`);
+            ajouterMessageVide(listeDocuments, `Aucun document dans ${categorie}`);
             return;
         }
-        
         documents.forEach(element => {
-            const docElement = creerElementDocument(element, true);
-            listeDocuments.appendChild(docElement);
+            listeDocuments.appendChild(creerElementDocument(element, true));
         });
     }
 }
@@ -415,46 +414,40 @@ function reinitialiserFiltres() {
 }
 
 // -----------------------------------------------------------------------------------
-// Fonction de suppression
+// SUPPRESSION DE DOCUMENT
 // -----------------------------------------------------------------------------------
-
-function supprimerDocument(id, item) {
+async function supprimerDocument(id, item) {
     const titre = item.querySelector('.document-title-edit').value;
     
-    confirmer(
+    const confirme = await confirmationGraphique(
         "Confirmation de suppression",
-        `Êtes-vous sûr de vouloir supprimer le document "<strong>${titre}</strong>" ?<br><small class="text-danger">Cette action est irréversible.</small>`,
-        () => {
-            item.classList.add('fade-out');
-            
-            setTimeout(() => {
-                appelAjax({
-                    url: 'ajax/supprimer.php',
-                    data: { id: id },
-                    success: (response) => {
-                        item.remove();
-                        
-                        documentsOriginaux = documentsOriginaux.filter(doc => doc.id !== id);
-                        
-                        filtrerEtAfficherDocuments();
-                        
-                        messageBox("Document supprimé avec succès", 'success');
-                    },
-                    error: (err) => {
-                        item.classList.remove('fade-out');
-                        console.error('Erreur suppression:', err);
-                        messageBox("Erreur lors de la suppression: " + (err.message || 'Erreur inconnue'), 'error');
-                    }
-                });
-            }, 300);
-        }
+        `Êtes-vous sûr de vouloir supprimer "<strong>${titre}</strong>" ?`
     );
+    
+    if (confirme) {
+        item.classList.add('fade-out');
+        setTimeout(() => {
+            appelAjax({
+                url: 'ajax/supprimer.php',
+                data: { id: id },
+                success: (response) => {
+                    item.remove();
+                    documentsOriginaux = documentsOriginaux.filter(doc => doc.id !== id);
+                    filtrerEtAfficherDocuments();
+                    messageBox("✅ Document supprimé", 'success');
+                },
+                error: (err) => {
+                    item.classList.remove('fade-out');
+                    messageBox("❌ Erreur: " + (err.message || 'Erreur'), 'error');
+                }
+            });
+        }, 300);
+    }
 }
 
 // -----------------------------------------------------------------------------------
-// Fonction de remplacement de fichier
+// REMPLACEMENT DE FICHIER
 // -----------------------------------------------------------------------------------
-
 function remplacer(file) {
     const formData = new FormData();
     formData.append('fichier', file);
@@ -468,26 +461,21 @@ function remplacer(file) {
         contentType: false,
         success: (response) => {
             if (response.success) {
-                messageBox("✅ Fichier remplacé avec succès");
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                messageBox("✅ Fichier remplacé");
+                setTimeout(() => window.location.reload(), 1500);
             } else if (response.error) {
                 messageBox("❌ " + response.error, 'error');
             }
         },
         error: (err) => {
-            messageBox("Erreur lors du remplacement du fichier", 'error');
+            messageBox("❌ Erreur remplacement", 'error');
         }
     });
 }
 
 // -----------------------------------------------------------------------------------
-// Fonction de modification de document
+// MODIFICATION DE DOCUMENT
 // -----------------------------------------------------------------------------------
-
-let timeoutSauvegarde = null;
-
 function sauvegarderModification(element) {
     const id = element.dataset.id;
     const field = element.dataset.field;
@@ -500,6 +488,14 @@ function sauvegarderModification(element) {
         return;
     }
     
+    if (field === 'description' && element.tagName === 'TEXTAREA') {
+        const counter = element.parentElement.querySelector('small');
+        if (counter) {
+            counter.textContent = `${valeur.length}/500 caractères`;
+        }
+    }
+    
+    // Ajouter l'indicateur de sauvegarde en cours
     element.classList.add('saving');
     clearTimeout(timeoutSauvegarde);
     
@@ -513,49 +509,83 @@ function sauvegarderModification(element) {
                 id: parseInt(id)
             },
             success: (response) => {
+                // Retirer l'indicateur de sauvegarde
                 element.classList.remove('saving');
-                element.classList.add('success-border');
-                setTimeout(() => element.classList.remove('success-border'), 1000);
                 
+                // Ajouter l'encadré vert pour SUCCÈS
+                element.classList.add('success-border');
+                
+                // Pour le TITRE uniquement, garder le bord vert un peu plus longtemps
+                // et ajouter un effet visuel spécifique
+                if (field === 'titre') {
+                    // Animation plus visible pour le titre
+                    element.style.transition = 'all 0.3s ease';
+                    element.style.boxShadow = '0 0 0 3px rgba(40, 167, 69, 0.3)';
+                    
+                    // Créer un petit indicateur de succès à côté du titre
+                    const successIcon = document.createElement('span');
+                    successIcon.className = 'saved-indicator ms-2';
+                    successIcon.innerHTML = '<i class="fas fa-check text-success"></i>';
+                    successIcon.style.fontSize = '0.8rem';
+                    
+                    // Vérifier si un indicateur existe déjà
+                    const existingIcon = element.parentElement.querySelector('.saved-indicator');
+                    if (existingIcon) {
+                        existingIcon.remove();
+                    }
+                    
+                    // Ajouter l'icône après le champ titre
+                    element.parentElement.appendChild(successIcon);
+                    
+                    // Retirer l'icône après 3 secondes
+                    setTimeout(() => {
+                        if (successIcon.parentElement) {
+                            successIcon.remove();
+                        }
+                    }, 3000);
+                }
+                
+                // Retirer l'encadré vert après 2 secondes
+                setTimeout(() => {
+                    element.classList.remove('success-border');
+                    if (field === 'titre') {
+                        element.style.boxShadow = '';
+                    }
+                }, 2000);
+                
+                // Mettre à jour les données locales
+                const docIndex = documentsOriginaux.findIndex(doc => doc.id === parseInt(id));
+                if (docIndex !== -1) {
+                    documentsOriginaux[docIndex][field] = valeur;
+                }
+                
+                // Actions spécifiques par champ
                 if (field === 'type') {
                     appliquerCouleurSelect(element);
-                    
-                    // Mettre à jour les données locales
-                    const docIndex = documentsOriginaux.findIndex(doc => doc.id === parseInt(id));
-                    if (docIndex !== -1) {
-                        documentsOriginaux[docIndex].type = valeur;
-                    }
-                    
-                    // Si on est en mode liste et qu'on change la catégorie, 
-                    // l'élément ne devrait plus apparaître dans la liste actuelle
-                    const categorieActive = filtreCategorie.value;
-                    if (categorieActive !== 'toutes' && categorieActive !== valeur) {
-                        // L'élément a changé de catégorie, on le retire de l'affichage
-                        const item = element.closest('.list-group-item');
-                        if (item) {
-                            item.classList.add('fade-out');
-                            setTimeout(() => {
-                                item.remove();
-                                filtrerEtAfficherDocuments();
-                            }, 300);
-                        }
-                    } else {
-                        // Sinon, on rafraîchit juste l'affichage
-                        filtrerEtAfficherDocuments();
-                    }
-                } else if (field === 'titre') {
-                    // Mettre à jour les données locales
-                    const docIndex = documentsOriginaux.findIndex(doc => doc.id === parseInt(id));
-                    if (docIndex !== -1) {
-                        documentsOriginaux[docIndex].titre = valeur;
-                    }
+                    filtrerEtAfficherDocuments();
                 }
             },
             error: (err) => {
+                // Retirer l'indicateur de sauvegarde
                 element.classList.remove('saving');
+                
+                // Ajouter l'encadré rouge pour ERREUR
                 element.classList.add('error-border');
-                setTimeout(() => element.classList.remove('error-border'), 2000);
-                console.error('Erreur modification:', err);
+                
+                // Pour le TITRE uniquement, effet d'erreur plus visible
+                if (field === 'titre') {
+                    element.style.transition = 'all 0.3s ease';
+                    element.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.3)';
+                }
+                
+                // Retirer l'encadré rouge après 3 secondes
+                setTimeout(() => {
+                    element.classList.remove('error-border');
+                    if (field === 'titre') {
+                        element.style.boxShadow = '';
+                    }
+                }, 3000);
+                
                 messageBox("Erreur lors de la modification", 'error');
             }
         });
@@ -563,9 +593,8 @@ function sauvegarderModification(element) {
 }
 
 // -----------------------------------------------------------------------------------
-// Gestion des événements - DELEGATION POUR LES NOUVEAUX ELEMENTS
+// ÉVÉNEMENTS
 // -----------------------------------------------------------------------------------
-
 fichier.onchange = () => {
     effacerLesErreurs();
     if (fichier.files.length > 0) {
@@ -573,32 +602,31 @@ fichier.onchange = () => {
         if (fichierValide(file, lesParametres)) {
             remplacer(file);
         } else {
-            messageBox("Type de fichier non autorisé", 'error');
+            messageBox("❌ Fichier non autorisé", 'error');
         }
     }
 };
 
-// Utiliser la délégation d'événements pour gérer les éléments créés dynamiquement
 document.addEventListener('click', function(e) {
-    // Remplacer
     if (e.target.closest('.btn-remplacer')) {
         const btn = e.target.closest('.btn-remplacer');
         nomFichier = btn.dataset.fichier;
         fichier.click();
     }
     
-    // Supprimer
     if (e.target.closest('.btn-supprimer')) {
         const btn = e.target.closest('.btn-supprimer');
         const id = parseInt(btn.dataset.id);
         const item = btn.closest('.list-group-item');
-        supprimerDocument(id, item);
+        if (id && item) {
+            supprimerDocument(id, item);
+        }
     }
 });
 
-// Gestion des modifications - délégation aussi
 document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('document-title-edit')) {
+    if (e.target.classList.contains('document-title-edit') || 
+        e.target.classList.contains('document-description-edit')) {
         sauvegarderModification(e.target);
     }
 });
@@ -609,18 +637,9 @@ document.addEventListener('change', function(e) {
     }
 });
 
-// Événements de recherche
-rechercheInput.addEventListener('input', () => {
-    filtrerEtAfficherDocuments();
-});
-
-filtreCategorie.addEventListener('change', () => {
-    filtrerEtAfficherDocuments();
-});
-
-filtreDate.addEventListener('change', () => {
-    filtrerEtAfficherDocuments();
-});
+rechercheInput.addEventListener('input', filtrerEtAfficherDocuments);
+filtreCategorie.addEventListener('change', filtrerEtAfficherDocuments);
+filtreDate.addEventListener('change', filtrerEtAfficherDocuments);
 
 btnEffacerRecherche.addEventListener('click', () => {
     rechercheInput.value = '';
@@ -629,25 +648,17 @@ btnEffacerRecherche.addEventListener('click', () => {
 });
 
 btnReinitialiserFiltres.addEventListener('click', reinitialiserFiltres);
-
 rechercheInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        filtrerEtAfficherDocuments();
-    }
+    if (e.key === 'Enter') filtrerEtAfficherDocuments();
 });
 
 // -----------------------------------------------------------------------------------
-// Initialisation
+// INITIALISATION
 // -----------------------------------------------------------------------------------
-
 if (typeof lesDocuments !== 'undefined' && Array.isArray(lesDocuments)) {
     documentsOriginaux = lesDocuments;
-    
     if (fichier && lesParametres && lesParametres.accept) {
         fichier.accept = lesParametres.accept;
     }
-    
     filtrerEtAfficherDocuments();
-    
-    console.log('✅ Interface documents initialisée');
 }
