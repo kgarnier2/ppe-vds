@@ -119,6 +119,33 @@ SQL;
     }
 
     /**
+     * Récupère tous les documents SAUF ceux de type "Membre"
+     * Utile pour l'affichage public sans connexion
+     *
+     * @return array<int, array{id:int,titre:string,type:string,date:string,fichier:string,description:string}>
+     */
+    public static function getAllSaufMembre(): array
+    {
+        $sql = <<<SQL
+            SELECT id, titre, type, date, fichier, COALESCE(description, '') AS description
+            FROM document
+            WHERE type != 'Membre'
+            ORDER BY id DESC;
+SQL;
+        $select = new Select();
+        $rows = $select->getRows($sql);
+
+        $uploadsBase = '/uploads/';
+        foreach ($rows as &$r) {
+            $r['url'] = $r['fichier'] ? $uploadsBase . $r['fichier'] : null;
+            $r['present'] = $r['fichier'] && file_exists(self::DIR . '/' . $r['fichier']);
+        }
+        unset($r);
+
+        return $rows;
+    }
+
+    /**
      * Récupère les documents d'un type/catégorie donné
      *
      * @param string $type

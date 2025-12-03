@@ -14,7 +14,6 @@
             <div id='detailClassement' style="display: none; padding-bottom:10px"></div>
         </div>
 
-
         <div class="card mb-1">
             <div class="card-header entete">Informations utiles</div>
             <div class="" style="display: none; padding-bottom:10px">
@@ -24,10 +23,15 @@
                 <span id="documentPublic"></span>
             </div>
         </div>
+        
+        <!-- SECTION MEMBRE - AFFICHÉE UNIQUEMENT SI CONNECTÉ -->
+        <?php if (isset($_SESSION['membre'])): ?>
         <div class="card mb-1">
             <div class="card-header entete">Membre</div>
             <div id='documentMembre' style="display: none; padding-bottom:10px"></div>
         </div>
+        <?php endif; ?>
+        <!-- FIN SECTION MEMBRE -->
     </div>
     <div class="flex-column">
         <div class="card mb-1">
@@ -59,7 +63,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="py-2">
     <div id='detailPartenaire' class="d-flex justify-content-evenly "></div>

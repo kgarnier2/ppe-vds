@@ -385,5 +385,168 @@
     .row.g-3 > .col-md-3 {
         margin-bottom: 0.5rem;
     }
+
+    /* Ajoutez ces styles aux styles existants */
+
+/* Mode liste */
+.conteneur-liste-mode {
+    display: none;
+    margin-bottom: 2rem;
 }
+
+.conteneur-liste-mode .card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.liste-mode-item {
+    padding: 1rem 1.25rem;
+    border: none;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.15s ease;
+}
+
+.liste-mode-item:hover {
+    background-color: #f8f9fa;
+}
+
+.liste-mode-item:last-child {
+    border-bottom: none;
+}
+
+.document-item-liste {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.document-info-liste {
+    flex: 1;
+    min-width: 0;
+}
+
+.document-titre-liste {
+    margin-bottom: 0.25rem;
+}
+
+.document-titre-liste .document-title-edit {
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-titre-liste .document-title-edit:hover {
+    border-bottom: 1px dashed #dee2e6;
+}
+
+.document-titre-liste .document-title-edit:focus {
+    border: 1px solid #80bdff;
+    background: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.document-meta-liste {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.document-date-liste {
+    font-size: 0.875rem;
+}
+
+.document-categorie-liste {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+}
+
+.document-actions-liste {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+/* Animation pour le changement de mode */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.conteneur-liste-mode .card {
+    animation: fadeInUp 0.3s ease;
+}
+
+/* Responsive mode liste */
+@media (max-width: 768px) {
+    .document-item-liste {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .document-actions-liste {
+        align-self: flex-end;
+    }
+    
+    .document-titre-liste .document-title-edit {
+        max-width: 100%;
+    }
+}
+
+/* Badges colorés */
+.badge[data-type="4saisons"] { background-color: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid #28a745; }
+.badge[data-type="Club"] { background-color: rgba(0, 123, 255, 0.1); color: #007bff; border: 1px solid #007bff; }
+.badge[data-type="Public"] { background-color: rgba(23, 162, 184, 0.1); color: #17a2b8; border: 1px solid #17a2b8; }
+.badge[data-type="Membre"] { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; }
+
+/* Indicateur visuel du mode actif */
+.filtre-actif .form-select {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Transition pour le changement d'affichage */
+.row.g-4, .conteneur-liste-mode {
+    transition: opacity 0.3s ease;
+}
+
+/* Titre de catégorie en mode liste */
+#titre-liste-categorie {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#titre-liste-categorie::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+#titre-liste-categorie[style*="#28a745"]::before { background-color: #28a745; }
+#titre-liste-categorie[style*="#007bff"]::before { background-color: #007bff; }
+#titre-liste-categorie[style*="#17a2b8"]::before { background-color: #17a2b8; }
+#titre-liste-categorie[style*="#ffc107"]::before { background-color: #ffc107; }
+}
+
+
 </style>

@@ -14,8 +14,6 @@ import {
 // Déclaration des variables globales
 // -----------------------------------------------------------------------------------
 
-/* global lesClassements, lesParametres, lesDocuments */
-
 let nomFichier;
 const fichier = document.getElementById('fichier');
 const nb = document.getElementById('nb');
@@ -29,8 +27,15 @@ const resultatsRecherche = document.getElementById('resultatsRecherche');
 const nombreResultats = document.getElementById('nombreResultats');
 const btnReinitialiserFiltres = document.getElementById('btnReinitialiserFiltres');
 
-// Données originales (pour réinitialiser)
-let documentsOriginaux = [...lesDocuments];
+// Containers
+const containerPrincipal = document.querySelector('.row.g-4');
+const containerClub = document.getElementById('documentClub');
+const container4Saisons = document.getElementById('document4Saisons');
+const containerPublic = document.getElementById('documentPublic');
+const containerMembre = document.getElementById('documentMembre');
+
+// Données originales
+let documentsOriginaux = [];
 
 // -----------------------------------------------------------------------------------
 // Fonctions utilitaires
@@ -48,9 +53,9 @@ function formaterDate(dateStr) {
     return str;
 }
 
-function creerElementDocument(element) {
+function creerElementDocument(element, modeListe = false) {
     const div = document.createElement('div');
-    div.className = 'list-group-item';
+    div.className = modeListe ? 'list-group-item liste-mode-item' : 'list-group-item';
     div.id = `doc-${element.id}`;
     div.dataset.titre = element.titre.toLowerCase();
     div.dataset.categorie = element.type;
@@ -58,65 +63,125 @@ function creerElementDocument(element) {
     
     const dateFormatee = formaterDate(element.date);
     
-    div.innerHTML = `
-        <div class="document-item">
-            <div class="document-info">
-                <div class="mb-2">
-                    <input type="text" 
-                           class="form-control form-control-sm document-title-edit" 
-                           value="${element.titre}" 
-                           data-id="${element.id}" 
-                           data-field="titre"
-                           maxlength="200">
+    if (modeListe) {
+        // Mode liste - AVEC LE SELECT D'ÉDITION DE CATÉGORIE
+        div.innerHTML = `
+            <div class="document-item-liste">
+                <div class="document-info-liste">
+                    <div class="document-titre-liste">
+                        <input type="text" 
+                               class="form-control form-control-sm document-title-edit" 
+                               value="${element.titre}" 
+                               data-id="${element.id}" 
+                               data-field="titre"
+                               maxlength="200">
+                    </div>
+                    <div class="document-meta-liste">
+                        <span class="document-date-liste text-muted small">
+                            <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
+                        </span>
+                        <div class="document-type-container-liste ms-2">
+                            <select class="form-select form-select-sm document-type-edit" 
+                                    data-id="${element.id}" 
+                                    data-field="type"
+                                    style="max-width: 140px; font-weight: 500;">
+                                <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''} style="color: #28a745; font-weight: 500;">4 saisons</option>
+                                <option value="Club" ${element.type === 'Club' ? 'selected' : ''} style="color: #007bff; font-weight: 500;">Club</option>
+                                <option value="Public" ${element.type === 'Public' ? 'selected' : ''} style="color: #17a2b8; font-weight: 500;">Public</option>
+                                <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''} style="color: #ffc107; font-weight: 500;">Membre</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="document-date text-muted small mb-2">
-                    <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
-                </div>
-                
-                <div class="mb-2">
-                    <select class="form-select form-select-sm document-type-edit" 
+                <div class="document-actions-liste">
+                    ${element.present ? 
+                        `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
+                           class="btn btn-sm btn-outline-primary" 
+                           title="Voir le document">
+                            <i class="fas fa-eye"></i>
+                        </a>` : 
+                        `<span class="btn btn-sm btn-outline-secondary" title="Document non trouvé">
+                            <i class="fas fa-question"></i>
+                        </span>`
+                    }
+                    <button class="btn btn-sm btn-outline-warning btn-remplacer" 
                             data-id="${element.id}" 
-                            data-field="type"
-                            style="max-width: 140px; font-weight: 500;">
-                        <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''} style="color: #28a745; font-weight: 500;">4 saisons</option>
-                        <option value="Club" ${element.type === 'Club' ? 'selected' : ''} style="color: #007bff; font-weight: 500;">Club</option>
-                        <option value="Public" ${element.type === 'Public' ? 'selected' : ''} style="color: #17a2b8; font-weight: 500;">Public</option>
-                        <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''} style="color: #ffc107; font-weight: 500;">Membre</option>
-                    </select>
+                            data-fichier="${element.fichier}"
+                            title="Remplacer le fichier">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-supprimer" 
+                            data-id="${element.id}"
+                            title="Supprimer le document">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
-            
-            <div class="document-actions">
-                ${element.present ? 
-                    `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
-                       class="btn btn-sm btn-outline-primary" 
-                       title="Voir le document">
-                        <i class="fas fa-eye"></i>
-                    </a>` : 
-                    `<span class="btn btn-sm btn-outline-secondary" title="Document non trouvé">
-                        <i class="fas fa-question"></i>
-                    </span>`
-                }
-                <button class="btn btn-sm btn-outline-warning btn-remplacer" 
-                        data-id="${element.id}" 
-                        data-fichier="${element.fichier}"
-                        title="Remplacer le fichier">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger btn-supprimer" 
-                        data-id="${element.id}"
-                        title="Supprimer le document">
-                    <i class="fas fa-trash"></i>
-                </button>
+        `;
+    } else {
+        // Mode carte
+        div.innerHTML = `
+            <div class="document-item">
+                <div class="document-info">
+                    <div class="mb-2">
+                        <input type="text" 
+                               class="form-control form-control-sm document-title-edit" 
+                               value="${element.titre}" 
+                               data-id="${element.id}" 
+                               data-field="titre"
+                               maxlength="200">
+                    </div>
+                    
+                    <div class="document-date text-muted small mb-2">
+                        <i class="far fa-calendar-alt me-1"></i>${dateFormatee}
+                    </div>
+                    
+                    <div class="mb-2">
+                        <select class="form-select form-select-sm document-type-edit" 
+                                data-id="${element.id}" 
+                                data-field="type"
+                                style="max-width: 140px; font-weight: 500;">
+                            <option value="4saisons" ${element.type === '4saisons' ? 'selected' : ''} style="color: #28a745; font-weight: 500;">4 saisons</option>
+                            <option value="Club" ${element.type === 'Club' ? 'selected' : ''} style="color: #007bff; font-weight: 500;">Club</option>
+                            <option value="Public" ${element.type === 'Public' ? 'selected' : ''} style="color: #17a2b8; font-weight: 500;">Public</option>
+                            <option value="Membre" ${element.type === 'Membre' ? 'selected' : ''} style="color: #ffc107; font-weight: 500;">Membre</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="document-actions">
+                    ${element.present ? 
+                        `<a href="afficherdocument.php?id=${element.id}" target="_blank" 
+                           class="btn btn-sm btn-outline-primary" 
+                           title="Voir le document">
+                            <i class="fas fa-eye"></i>
+                        </a>` : 
+                        `<span class="btn btn-sm btn-outline-secondary" title="Document non trouvé">
+                            <i class="fas fa-question"></i>
+                        </span>`
+                    }
+                    <button class="btn btn-sm btn-outline-warning btn-remplacer" 
+                            data-id="${element.id}" 
+                            data-fichier="${element.fichier}"
+                            title="Remplacer le fichier">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-supprimer" 
+                            data-id="${element.id}"
+                            title="Supprimer le document">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
-        </div>
-    `;
-    
-    const select = div.querySelector('.document-type-edit');
-    if (select) {
-        appliquerCouleurSelect(select);
+        `;
     }
+    
+    // Appliquer les couleurs aux selects
+    const selects = div.querySelectorAll('.document-type-edit');
+    selects.forEach(select => {
+        appliquerCouleurSelect(select);
+    });
     
     return div;
 }
@@ -132,29 +197,21 @@ function appliquerCouleurSelect(select) {
     const couleur = couleurs[select.value] || '#6c757d';
     select.style.color = couleur;
     select.style.borderColor = couleur;
+    select.style.backgroundColor = couleur + '10'; // Version très claire
 }
 
-function ajouterMessageVide(container) {
+function ajouterMessageVide(container, message = 'Aucun document dans cette catégorie') {
     const existingMsg = container.querySelector('.empty-message');
     if (existingMsg) return;
     
     const emptyMsg = document.createElement('div');
-    emptyMsg.className = 'empty-message';
-    emptyMsg.textContent = 'Aucun document dans cette catégorie';
+    emptyMsg.className = 'empty-message text-center py-5';
+    emptyMsg.innerHTML = `<i class="fas fa-inbox fa-2x text-muted mb-3"></i><p class="text-muted">${message}</p>`;
     container.appendChild(emptyMsg);
 }
 
-function getContainerForType(type) {
-    const t = (type||'').toLowerCase().trim();
-    if (t === '4saisons' || t === '4 saisons') return document.getElementById('document4Saisons');
-    if (t === 'club' || t === 'administratif') return document.getElementById('documentClub');
-    if (t === 'technique' || t === 'public') return document.getElementById('documentPublic');
-    if (t === 'general' || t === 'membre') return document.getElementById('documentMembre');
-    return null;
-}
-
 // -----------------------------------------------------------------------------------
-// Fonctions de recherche et filtrage
+// Fonctions d'affichage
 // -----------------------------------------------------------------------------------
 
 function filtrerEtAfficherDocuments() {
@@ -164,12 +221,10 @@ function filtrerEtAfficherDocuments() {
     
     // Filtrer les documents
     let documentsFiltres = documentsOriginaux.filter(doc => {
-        // Filtre par recherche
         if (recherche && !doc.titre.toLowerCase().includes(recherche)) {
             return false;
         }
         
-        // Filtre par catégorie
         if (categorie !== 'toutes' && doc.type !== categorie) {
             return false;
         }
@@ -177,35 +232,52 @@ function filtrerEtAfficherDocuments() {
         return true;
     });
     
-    // Trier par date si demandé
+    // Trier par date
     if (triDate === 'recent') {
         documentsFiltres.sort((a, b) => new Date(b.date) - new Date(a.date));
     } else if (triDate === 'ancien') {
         documentsFiltres.sort((a, b) => new Date(a.date) - new Date(b.date));
     }
     
-    // Mettre à jour l'affichage
-    afficherDocumentsFiltres(documentsFiltres);
+    // Afficher selon le mode
+    if (categorie === 'toutes') {
+        afficherModeCartes(documentsFiltres);
+    } else {
+        afficherModeListe(documentsFiltres, categorie);
+    }
     
-    // Afficher/masquer les résultats de recherche
+    // Mettre à jour les résultats
     const aFiltresActifs = recherche || categorie !== 'toutes' || triDate !== 'recent';
     
     if (aFiltresActifs) {
         resultatsRecherche.style.display = 'block';
         nombreResultats.textContent = documentsFiltres.length;
-        nb.textContent = documentsFiltres.length;
-        nb.style.color = '#dc3545';
+        if (nb) {
+            nb.textContent = documentsFiltres.length;
+            nb.style.color = '#dc3545';
+        }
     } else {
         resultatsRecherche.style.display = 'none';
-        nb.textContent = documentsOriginaux.length;
-        nb.style.color = '#28a745';
+        if (nb) {
+            nb.textContent = documentsOriginaux.length;
+            nb.style.color = '#28a745';
+        }
     }
 }
 
-function afficherDocumentsFiltres(documents) {
-    // Vider tous les conteneurs
-    document.querySelectorAll('#documentClub, #document4Saisons, #documentPublic, #documentMembre').forEach(container => {
-        container.innerHTML = '';
+function afficherModeCartes(documents) {
+    // Masquer le conteneur de liste s'il existe
+    const listeContainer = document.getElementById('conteneur-liste-unique');
+    if (listeContainer) {
+        listeContainer.style.display = 'none';
+    }
+    
+    // Réinitialiser l'affichage des cartes
+    [containerClub, container4Saisons, containerPublic, containerMembre].forEach(container => {
+        if (container) {
+            container.innerHTML = '';
+            container.closest('.card').style.display = 'block';
+        }
     });
     
     // Réinitialiser les compteurs
@@ -216,33 +288,123 @@ function afficherDocumentsFiltres(documents) {
         'public': 0
     };
     
-    // Afficher les documents filtrés
+    // Répartir les documents dans les cartes
     documents.forEach(element => {
-        const container = getContainerForType(element.type);
+        let container;
+        switch(element.type) {
+            case 'Club': container = containerClub; break;
+            case '4saisons': container = container4Saisons; break;
+            case 'Public': container = containerPublic; break;
+            case 'Membre': container = containerMembre; break;
+        }
+        
         if (container) {
-            const docElement = creerElementDocument(element);
+            const docElement = creerElementDocument(element, false);
             container.appendChild(docElement);
-            
-            const typeKey = element.type.toLowerCase();
-            if (compteurs[typeKey] !== undefined) {
-                compteurs[typeKey]++;
-            }
+            compteurs[element.type.toLowerCase()]++;
         }
     });
     
-    // Mettre à jour les badges de comptage
-    Object.keys(compteurs).forEach(type => {
+    // Mettre à jour les badges
+    ['club', '4saisons', 'membre', 'public'].forEach(type => {
         const badge = document.getElementById(`count-${type}`);
         const container = document.getElementById(`document${type.charAt(0).toUpperCase() + type.slice(1)}`);
         
-        if (badge) {
-            badge.textContent = compteurs[type];
-        }
-        
+        if (badge) badge.textContent = compteurs[type];
         if (container && container.children.length === 0) {
             ajouterMessageVide(container);
         }
     });
+    
+    // Masquer les cartes vides
+    ['club', '4saisons', 'membre', 'public'].forEach(type => {
+        const container = document.getElementById(`document${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        if (container && container.children.length === 0) {
+            container.closest('.card').style.display = 'none';
+        }
+    });
+}
+
+function afficherModeListe(documents, categorie) {
+    // Créer ou récupérer le conteneur de liste
+    let listeContainer = document.getElementById('conteneur-liste-unique');
+    
+    if (!listeContainer) {
+        listeContainer = document.createElement('div');
+        listeContainer.id = 'conteneur-liste-unique';
+        listeContainer.className = 'card border-0 shadow-sm mt-4';
+        listeContainer.innerHTML = `
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" id="titre-liste-categorie"></h5>
+                <span class="badge" id="count-liste">0</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="liste-documents"></div>
+            </div>
+        `;
+        
+        // Insérer après le conteneur principal des cartes
+        containerPrincipal.insertAdjacentElement('afterend', listeContainer);
+    }
+    
+    // Masquer toutes les cartes
+    [containerClub, container4Saisons, containerPublic, containerMembre].forEach(container => {
+        if (container) {
+            container.closest('.card').style.display = 'none';
+        }
+    });
+    
+    // Afficher le conteneur de liste
+    listeContainer.style.display = 'block';
+    
+    // Mettre à jour le titre
+    const titreCategorie = document.getElementById('titre-liste-categorie');
+    const countListe = document.getElementById('count-liste');
+    const listeDocuments = document.getElementById('liste-documents');
+    
+    if (titreCategorie) {
+        const nomsCategories = {
+            '4saisons': '4 saisons',
+            'Club': 'Club',
+            'Public': 'Public',
+            'Membre': 'Membre'
+        };
+        titreCategorie.textContent = `Documents - ${nomsCategories[categorie] || categorie}`;
+        
+        // Appliquer la couleur au titre et au badge
+        const couleurs = {
+            '4saisons': '#28a745',
+            'Club': '#007bff',
+            'Public': '#17a2b8',
+            'Membre': '#ffc107'
+        };
+        const couleur = couleurs[categorie] || '#000';
+        
+        titreCategorie.style.color = couleur;
+        if (countListe) {
+            countListe.style.backgroundColor = couleur;
+            countListe.style.color = 'white';
+        }
+    }
+    
+    if (countListe) {
+        countListe.textContent = documents.length;
+    }
+    
+    // Vider et remplir la liste
+    if (listeDocuments) {
+        listeDocuments.innerHTML = '';
+        
+        if (documents.length === 0) {
+            ajouterMessageVide(listeDocuments, `Aucun document dans la catégorie ${categorie}`);
+            return;
+        }
+        
+        documents.forEach(element => {
+            const docElement = creerElementDocument(element, true);
+            listeDocuments.appendChild(docElement);
+        });
+    }
 }
 
 function reinitialiserFiltres() {
@@ -263,7 +425,6 @@ function supprimerDocument(id, item) {
         "Confirmation de suppression",
         `Êtes-vous sûr de vouloir supprimer le document "<strong>${titre}</strong>" ?<br><small class="text-danger">Cette action est irréversible.</small>`,
         () => {
-            // Animation de sortie
             item.classList.add('fade-out');
             
             setTimeout(() => {
@@ -273,10 +434,8 @@ function supprimerDocument(id, item) {
                     success: (response) => {
                         item.remove();
                         
-                        // Mettre à jour les données originales
                         documentsOriginaux = documentsOriginaux.filter(doc => doc.id !== id);
                         
-                        // Mettre à jour l'affichage filtré
                         filtrerEtAfficherDocuments();
                         
                         messageBox("Document supprimé avec succès", 'success');
@@ -361,16 +520,31 @@ function sauvegarderModification(element) {
                 if (field === 'type') {
                     appliquerCouleurSelect(element);
                     
-                    // Mettre à jour les données originales
+                    // Mettre à jour les données locales
                     const docIndex = documentsOriginaux.findIndex(doc => doc.id === parseInt(id));
                     if (docIndex !== -1) {
                         documentsOriginaux[docIndex].type = valeur;
                     }
                     
-                    // Re-filtrer pour refléter le changement
-                    filtrerEtAfficherDocuments();
+                    // Si on est en mode liste et qu'on change la catégorie, 
+                    // l'élément ne devrait plus apparaître dans la liste actuelle
+                    const categorieActive = filtreCategorie.value;
+                    if (categorieActive !== 'toutes' && categorieActive !== valeur) {
+                        // L'élément a changé de catégorie, on le retire de l'affichage
+                        const item = element.closest('.list-group-item');
+                        if (item) {
+                            item.classList.add('fade-out');
+                            setTimeout(() => {
+                                item.remove();
+                                filtrerEtAfficherDocuments();
+                            }, 300);
+                        }
+                    } else {
+                        // Sinon, on rafraîchit juste l'affichage
+                        filtrerEtAfficherDocuments();
+                    }
                 } else if (field === 'titre') {
-                    // Mettre à jour les données originales
+                    // Mettre à jour les données locales
                     const docIndex = documentsOriginaux.findIndex(doc => doc.id === parseInt(id));
                     if (docIndex !== -1) {
                         documentsOriginaux[docIndex].titre = valeur;
@@ -382,17 +556,17 @@ function sauvegarderModification(element) {
                 element.classList.add('error-border');
                 setTimeout(() => element.classList.remove('error-border'), 2000);
                 console.error('Erreur modification:', err);
+                messageBox("Erreur lors de la modification", 'error');
             }
         });
     }, 800);
 }
 
 // -----------------------------------------------------------------------------------
-// Gestion des événements
+// Gestion des événements - DELEGATION POUR LES NOUVEAUX ELEMENTS
 // -----------------------------------------------------------------------------------
 
-// sur la sélection d'un fichier
-fichier.onchange = function() {
+fichier.onchange = () => {
     effacerLesErreurs();
     if (fichier.files.length > 0) {
         let file = fichier.files[0];
@@ -404,16 +578,16 @@ fichier.onchange = function() {
     }
 };
 
-// Gestion des clics
+// Utiliser la délégation d'événements pour gérer les éléments créés dynamiquement
 document.addEventListener('click', function(e) {
-    // Remplacer un fichier
+    // Remplacer
     if (e.target.closest('.btn-remplacer')) {
         const btn = e.target.closest('.btn-remplacer');
         nomFichier = btn.dataset.fichier;
         fichier.click();
     }
     
-    // Supprimer un document
+    // Supprimer
     if (e.target.closest('.btn-supprimer')) {
         const btn = e.target.closest('.btn-supprimer');
         const id = parseInt(btn.dataset.id);
@@ -422,14 +596,13 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Gestion des modifications inline
+// Gestion des modifications - délégation aussi
 document.addEventListener('input', function(e) {
     if (e.target.classList.contains('document-title-edit')) {
         sauvegarderModification(e.target);
     }
 });
 
-// Gestion du changement de type
 document.addEventListener('change', function(e) {
     if (e.target.classList.contains('document-type-edit')) {
         sauvegarderModification(e.target);
@@ -437,57 +610,44 @@ document.addEventListener('change', function(e) {
 });
 
 // Événements de recherche
-if (rechercheInput) {
-    rechercheInput.addEventListener('input', function() {
-        filtrerEtAfficherDocuments();
-    });
-}
-
-if (filtreCategorie) {
-    filtreCategorie.addEventListener('change', function() {
-        filtrerEtAfficherDocuments();
-    });
-}
-
-if (filtreDate) {
-    filtreDate.addEventListener('change', function() {
-        filtrerEtAfficherDocuments();
-    });
-}
-
-if (btnEffacerRecherche) {
-    btnEffacerRecherche.addEventListener('click', function() {
-        rechercheInput.value = '';
-        filtrerEtAfficherDocuments();
-        rechercheInput.focus();
-    });
-}
-
-if (btnReinitialiserFiltres) {
-    btnReinitialiserFiltres.addEventListener('click', reinitialiserFiltres);
-}
-
-// Recherche avec Entrée
-if (rechercheInput) {
-    rechercheInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            filtrerEtAfficherDocuments();
-        }
-    });
-}
-
-// -----------------------------------------------------------------------------------
-// Programme principal
-// -----------------------------------------------------------------------------------
-
-// Initialisation
-if (fichier && lesParametres) {
-    fichier.accept = lesParametres.accept;
-}
-
-// Afficher tous les documents initialement
-if (typeof filtrerEtAfficherDocuments === 'function') {
+rechercheInput.addEventListener('input', () => {
     filtrerEtAfficherDocuments();
-}
+});
 
-console.log('✅ Interface documents initialisée avec recherche et filtres');
+filtreCategorie.addEventListener('change', () => {
+    filtrerEtAfficherDocuments();
+});
+
+filtreDate.addEventListener('change', () => {
+    filtrerEtAfficherDocuments();
+});
+
+btnEffacerRecherche.addEventListener('click', () => {
+    rechercheInput.value = '';
+    filtrerEtAfficherDocuments();
+    rechercheInput.focus();
+});
+
+btnReinitialiserFiltres.addEventListener('click', reinitialiserFiltres);
+
+rechercheInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        filtrerEtAfficherDocuments();
+    }
+});
+
+// -----------------------------------------------------------------------------------
+// Initialisation
+// -----------------------------------------------------------------------------------
+
+if (typeof lesDocuments !== 'undefined' && Array.isArray(lesDocuments)) {
+    documentsOriginaux = lesDocuments;
+    
+    if (fichier && lesParametres && lesParametres.accept) {
+        fichier.accept = lesParametres.accept;
+    }
+    
+    filtrerEtAfficherDocuments();
+    
+    console.log('✅ Interface documents initialisée');
+}
