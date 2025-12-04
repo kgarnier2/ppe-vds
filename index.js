@@ -67,36 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Configuration de l'API - À ADAPTER selon ton backend
-const API_CONFIG = {
-    baseUrl: 'http://localhost:3000/api', // Remplace par ton URL
-    endpoints: {
-        documents: '/documents'
-    }
-};
 
-// Fonction pour récupérer les documents depuis l'API
-async function chargerDocuments() {
-    try {
-        showLoadingDocuments(true);
-        
-        // ICI : Remplace cette URL par ton endpoint réel
-        const response = await fetch(API_CONFIG.baseUrl + API_CONFIG.endpoints.documents);
-        
-        if (!response.ok) {
-            throw new Error('Erreur lors du chargement des documents');
-        }
-        
-        const documents = await response.json();
-        organiserDocumentsParCategorie(documents);
-        
-    } catch (error) {
-        console.error('Erreur:', error);
-        showErrorDocuments('Impossible de charger les documents: ' + error.message);
-    } finally {
-        showLoadingDocuments(false);
-    }
-}
 
 // Fonction pour organiser les documents par type/catégorie
 function organiserDocumentsParCategorie(documents) {
@@ -208,8 +179,6 @@ function genererDocumentsHTML(documents) {
 
 // Fonction pour ouvrir/télécharger un document
 function ouvrirDocument(docId, fichier) {
-    // ICI : Adapte cette URL selon ton API de téléchargement
-    const urlDownload = `${API_CONFIG.baseUrl}/documents/${docId}/download`;
     
     // Pour l'instant, on ouvre dans un nouvel onglet
     window.open(urlDownload, '_blank');
