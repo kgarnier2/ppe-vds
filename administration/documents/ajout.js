@@ -132,7 +132,7 @@ if (!form) {
             erreurs.push({ champ: 'titreDocument', message: '❌ Le titre doit faire au moins 10 caractères' });
         } else if (titre.length > 70) {
             erreurs.push({ champ: 'titreDocument', message: '❌ Le titre ne doit pas dépasser 70 caractères' });
-        } else if (!/^[A-Za-z0-9 ,'\-]+[?!]?$/.test(titre)) {
+        } else if (!/^[\p{L}0-9 ,'\-\/]+[?!]?$/u.test(titre)) {
             erreurs.push({ champ: 'titreDocument', message: '❌ Caractères non autorisés. Autorisés: lettres, chiffres, espaces, virgules, apostrophes, tirets. Peut finir par ? ou !' });
     }
         

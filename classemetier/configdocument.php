@@ -24,6 +24,6 @@ return [
     'titre' => [
         'minLength' => 10,
         'maxLength' => 70,
-        'pattern' => "/^[A-Za-zÀ-ÿ0-9 ,'-]+[?!]?$/u"
+        'pattern' => "/^[\p{L}0-9 ,'\-\/]+[?!]?$/u"
     ]
 ];

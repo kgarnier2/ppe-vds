@@ -4,7 +4,7 @@
         <div class="mb-3">
             <label for="titreDocument" class="obligatoire">Titre du document</label>
             <input type="text" id="titreDocument" name="titre" class="form-control" required minlength="10" maxlength="70"
-                   pattern="^[A-Za-zÀ-ÿ0-9 ,'-]+[?!]?$"
+                   pattern="/^[\p{L}0-9 ,'\-\/]+[?!]?$/u"
                    title="Lettres, chiffres, espaces, virgules, apostrophes, tirets. Peut finir par ? ou !">
             <small class="form-text text-muted">10 à 70 caractères. Caractères autorisés: lettres, chiffres, espaces, virgules, apostrophes, tirets. Peut finir par ? ou !</small>
         </div>
