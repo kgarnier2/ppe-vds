@@ -67,10 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-
-
-
-
 // map type -> conteneur DOM
 function getContainerForType(type) {
     const t = (type || '').toLowerCase().trim();
